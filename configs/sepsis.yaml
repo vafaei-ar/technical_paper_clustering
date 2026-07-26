@@ -1,0 +1,86 @@
+dataset_name: sepsis
+input_path: data/sepsis/sepsis_cohort_imputed_safe.parquet
+id_column: PATID
+output_dir: results/sepsis
+features:
+  primary:
+    - AGE_AT_SEPSIS
+    - Anion gap 3
+    - ALT (P5P)
+    - Calcium
+    - Magnesium
+    - AST
+    - Bilirubin total
+    - Chloride
+    - Creatinine
+    - Glucose
+    - Potassium
+    - Protein total
+    - Sodium
+    - BUN
+    - MPV
+    - Hematocrit
+    - Urine pH (auto strip)
+    - 'IG #'
+    - Urine specific gravity (auto)
+    - Monocytes %
+    - Albumin (BCG)
+    - 'WBC #'
+    - Alkaline phosphatase
+    - 'Basophils #'
+    - Basophils %
+    - 'Eosinophils #'
+    - Eosinophils %
+    - IG %
+    - Hemoglobin
+    - 'Lymphocytes #'
+    - Lymphocytes %
+    - 'Monocytes #'
+    - 'Neutrophils #'
+    - Neutrophils %
+    - 'Platelets #'
+    - MCH
+    - MCHC
+    - MCV
+    - 'RBC #'
+    - DIASTOLIC_value
+    - SYSTOLIC_value
+    - ORIGINAL_BMI_value
+    - acute_fever
+    - acute_tachycardia
+    - acute_hypotension
+    - acute_wbc_elevated
+    - acute_kidney_failure
+    - acute_respiratory_failure
+    - symptom_shortness_of_breath
+    - infection_sources
+    - pulmonary_imaging_findings
+    - chronic_comorbidities
+preprocessing:
+  scaler: robust
+  remove_zero_variance: true
+  clip_quantiles: [0.005, 0.995]
+  plausibility_limits_path: configs/sepsis_plausibility.yaml
+  log1p_features:
+    - AST
+    - ALT (P5P)
+    - Bilirubin total
+    - Alkaline phosphatase
+    - Creatinine
+    - BUN
+    - Glucose
+    - 'WBC #'
+    - 'Neutrophils #'
+    - 'Lymphocytes #'
+    - 'Monocytes #'
+    - 'Eosinophils #'
+    - 'Basophils #'
+    - 'IG #'
+    - IG %
+reductions: [none, pca]
+clusterers: [kmeans, gmm, agglomerative]
+k_values: [2, 3, 4, 5, 6, 7, 8, 9, 10]
+seeds: [11, 23, 37, 53, 71]
+quality_gates:
+  minimum_cluster_fraction: 0.01
+  minimum_cluster_n: 30
