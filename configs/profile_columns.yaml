@@ -1,0 +1,12 @@
+stroke:
+  categorical_descriptive: [SEX, HISPANIC, RACE, PAT_PREF_LANGUAGE_SPOKEN, RUCA_CODE]
+  continuous_descriptive: [ADI_NAT_RANK22, ADI_STATE_RANK22, Pct_Urban, SVI_SES_RANK22, SVI_HOUSE_RANK22, SVI_RACE_RANK22, SVI_TRANSP_RANK22, SVI_OVERAL_RANK22]
+  continuous_outcomes: [enc_duration]
+  categorical_outcomes: [DISCHARGE_STATUS]
+  binary_outcomes: []
+sepsis:
+  categorical_descriptive: [SEX, HISPANIC, RACE, PAT_PREF_LANGUAGE_SPOKEN, RUCA_CODE]
+  continuous_descriptive: []
+  continuous_outcomes: [enc_duration]
+  categorical_outcomes: []
+  binary_outcomes: [prolonged_los]
