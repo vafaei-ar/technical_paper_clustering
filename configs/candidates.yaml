@@ -1,0 +1,11 @@
+stroke:
+  - {name: stroke_raw_agg_k2, reduction: none, clusterer: agglomerative, k: 2, seed: 11}
+  - {name: stroke_raw_agg_k3, reduction: none, clusterer: agglomerative, k: 3, seed: 11}
+  - {name: stroke_pca_kmeans_k2, reduction: pca, clusterer: kmeans, k: 2, seed: 11}
+  - {name: stroke_pca_kmeans_k3, reduction: pca, clusterer: kmeans, k: 3, seed: 11}
+sepsis:
+  - {name: sepsis_pca_kmeans_k2, reduction: pca, clusterer: kmeans, k: 2, seed: 11}
+  - {name: sepsis_pca_kmeans_k3, reduction: pca, clusterer: kmeans, k: 3, seed: 11}
+  - {name: sepsis_raw_kmeans_k2, reduction: none, clusterer: kmeans, k: 2, seed: 11}
+  - {name: sepsis_raw_kmeans_k3, reduction: none, clusterer: kmeans, k: 3, seed: 11}
+  - {name: sepsis_raw_agg_k3, reduction: none, clusterer: agglomerative, k: 3, seed: 11}
