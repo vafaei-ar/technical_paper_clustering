@@ -1,0 +1,61 @@
+# Data and generated outputs
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.sas7bdat
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+data/
+inputs/
+technical_paper_inputs/
+outputs/
+results/
+artifacts/
+figures/
+tables/
+
+# Logs and process files
+*.log
+*.pid
+nohup.out
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Temporary and backup files
+*.bak
+*.before_*
+*~
+upper
