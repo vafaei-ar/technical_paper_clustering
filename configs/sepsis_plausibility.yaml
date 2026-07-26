@@ -1,0 +1,9 @@
+ORIGINAL_BMI_value:
+  min: 10
+  max: 100
+SYSTOLIC_value:
+  min: 50
+  max: 300
+DIASTOLIC_value:
+  min: 20
+  max: 200
