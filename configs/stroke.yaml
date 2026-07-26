@@ -1,0 +1,45 @@
+dataset_name: stroke
+input_path: data/stroke/stroke_cohort_imputed.parquet
+id_column: PATID
+output_dir: results/stroke
+features:
+  primary:
+    - AGE_AT_STROKE
+    - Atrial_Fibrillation
+    - Atrial_Flutter
+    - Chronic_kidney_disease
+    - Chronic_liver_disease
+    - Chronic_lung_disease
+    - Diabetes_Mellitus
+    - Dyslipidemia
+    - Heart_failure
+    - Hemorrhagic_Stroke
+    - Hypercoagulable_states
+    - Hypertension
+    - Ischemic_Stroke
+    - Myocardial_Infarction
+    - Neoplasm
+    - Peripheral_vascular_disease
+    - Rheumatic_diseases
+    - Carbon dioxide
+    - Chloride
+    - Creatinine
+    - Glucose
+    - Potassium
+    - Sodium
+    - Hematocrit
+    - Leukocytes
+    - Hemoglobin
+    - Platelets
+    - Erythrocytes
+preprocessing:
+  scaler: robust
+  remove_zero_variance: true
+  clip_quantiles: [0.005, 0.995]
+reductions: [none, pca]
+clusterers: [kmeans, gmm, agglomerative]
+k_values: [2, 3, 4, 5, 6, 7, 8, 9, 10]
+seeds: [11, 23, 37, 53, 71]
+quality_gates:
+  minimum_cluster_fraction: 0.01
+  minimum_cluster_n: 30
