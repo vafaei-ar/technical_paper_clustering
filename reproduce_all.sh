@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+python -m pip install -e .
+pytest -q
+
+for cohort in stroke sepsis; do
+  config="configs/${cohort}.yaml"
+  tpcluster --config "$config"
+  python profile_candidates.py --config "$config"
+  python bootstrap_stability.py --config "$config" --n-repeats 50 --sample-fraction 0.80
+  python generate_manuscript_outputs.py --config "$config"
+done
+
+echo "All reproducible outputs were written under results/."
