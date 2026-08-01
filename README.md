@@ -20,9 +20,11 @@ These files are intentionally not tracked by Git.
 ## Environment
 
 ```bash
-conda create -n eda python=3.11 -y
-conda activate eda
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
+python -m pip install pytest
 pytest -q
 ```
 
@@ -36,8 +38,8 @@ The workflow performs, for each cohort:
 
 1. the complete clustering grid;
 2. finalist candidate profiling;
-3. 50 repeated 80% subsampling stability analyses;
-4. final manuscript tables and figures.
+3. repeated 80% subsampling stability analyses;
+4. final cohort-level manuscript tables and figures.
 
 Generated material is written under `results/`, which is ignored by Git.
 
@@ -50,11 +52,43 @@ The final generator deliberately separates two scales:
 
 Additional corrections include:
 
+- permutation-invariant canonical phenotype labels;
 - short non-overlapping cluster labels for figures;
 - simplified stroke discharge groups;
 - effect-size magnitude labels alongside FDR-adjusted p-values;
 - a clear PCA caption stating that the two-dimensional plot is a visual projection rather than the complete clustering space;
 - an analysis manifest recording the Git commit and configuration used.
+
+## Paper-level publication figures
+
+After both cohort runs and manuscript outputs exist, generate the compact paper-level figures with:
+
+```bash
+python generate_paper_figures.py \
+  --stroke-run results/stroke/<stroke_run_id> \
+  --sepsis-run results/sepsis/<sepsis_run_id>
+```
+
+The default outputs are written to:
+
+```text
+results/paper_figures/latest/
+  figures/
+    figure1_workflow.png
+    figure1_workflow.pdf
+    figure2_pca_projection.png
+    figure2_pca_projection.pdf
+    figure3_phenotype_heatmaps.png
+    figure3_phenotype_heatmaps.pdf
+    figure4_posthoc_effect_sizes.png
+    figure4_posthoc_effect_sizes.pdf
+  manifests/
+    paper_figure_manifest.json
+```
+
+These figures follow the project figure standard by using compact canvases, large readable text, short cluster labels, subordinate color bars, non-rotated heatmap labels, explicit sample sizes, deterministic PCA display sampling, vector PDF export, and separated footer notes.
+
+A dedicated stability-selection figure is intentionally not included in this paper-level set. Existing stability summaries remain available in the manuscript tables, while deeper stability-selection analyses are reserved for future work.
 
 ## Primary models
 
