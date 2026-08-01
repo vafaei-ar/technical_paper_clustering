@@ -13,4 +13,6 @@ for cohort in stroke sepsis; do
   python polish_manuscript_labels.py --config "$config"
 done
 
+python generate_paper_figures.py
+
 echo "All reproducible outputs were written under results/."
