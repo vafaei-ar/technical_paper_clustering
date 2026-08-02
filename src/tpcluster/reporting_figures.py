@@ -103,6 +103,23 @@ def make_workflow_figure(
     return save_figure(fig, Path(output_dir) / "figure1_workflow", formats)
 
 
+def _stratified_display_sample(
+    plot: pd.DataFrame,
+    max_points: int,
+    seed: int,
+) -> pd.DataFrame:
+    """Downsample for visualization while preserving cluster membership."""
+    if len(plot) <= max_points:
+        return plot.reset_index(drop=True)
+
+    sampled: list[pd.DataFrame] = []
+    total = len(plot)
+    for _, group in plot.groupby("cluster", sort=True):
+        target = max(100, int(round(max_points * len(group) / total)))
+        sampled.append(group.sample(n=min(len(group), target), random_state=seed))
+    return pd.concat(sampled, ignore_index=True)
+
+
 def _pca_panel(
     ax: plt.Axes,
     config_path: str | Path,
@@ -131,21 +148,11 @@ def _pca_panel(
             "cluster": merged["primary_cluster"].to_numpy(),
         }
     )
-    if len(plot) > max_points:
-        plot = (
-            plot.groupby("cluster", group_keys=False)
-            .apply(
-                lambda group: group.sample(
-                    min(len(group), max(100, int(max_points * len(group) / len(plot)))),
-                    random_state=seed,
-                ),
-                include_groups=False,
-            )
-            .reset_index(drop=True)
-        )
+    plot = _stratified_display_sample(plot, max_points=max_points, seed=seed)
+
     sizes = _cluster_sizes(run_dir)
-    for cluster in sorted(plot.cluster.unique()):
-        subset = plot[plot.cluster == cluster]
+    for cluster in sorted(plot["cluster"].unique()):
+        subset = plot[plot["cluster"] == cluster]
         ax.scatter(
             subset.PC1,
             subset.PC2,
