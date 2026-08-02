@@ -3,8 +3,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from tpcluster.paper_heatmaps import make_combined_heatmap_figure
 from tpcluster.reporting_figures import (
-    make_combined_heatmap_figure,
     make_combined_pca_figure,
     make_effect_size_figure,
     make_workflow_figure,
