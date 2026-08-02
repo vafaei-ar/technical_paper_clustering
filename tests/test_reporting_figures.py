@@ -57,10 +57,15 @@ def _write_run(root: Path, cohort: str) -> Path:
     )
     pd.DataFrame(
         {
-            "variable": ["outcome_a", "outcome_b", "race"],
-            "variable_label": ["Outcome A", "Outcome B", "Race"],
-            "effect_size": [0.18, 0.08, 0.02],
-            "effect_size_name": ["Cramers_V", "epsilon_squared", "Cramers_V"],
+            "variable": ["outcome_a", "outcome_b", "race", "duration"],
+            "variable_label": ["Outcome A", "Outcome B", "Race", "Duration"],
+            "effect_size": [0.18, 0.08, 0.02, 0.04],
+            "effect_size_name": [
+                "Cramers_V",
+                "epsilon_squared",
+                "Cramers_V",
+                "epsilon_squared",
+            ],
         }
     ).to_csv(tables / "table_effect_size_focused_results.csv", index=False)
     (run / "manuscript_outputs" / "analysis_manifest.json").write_text(
@@ -86,9 +91,11 @@ def test_combined_heatmap_and_effect_size_figures(tmp_path: Path):
     )
     assert heatmaps[0].exists()
     assert effects[0].exists()
+    assert heatmaps[0].stat().st_size > 0
+    assert effects[0].stat().st_size > 0
 
 
-def test_figure_manifest_records_stability_scope(tmp_path: Path):
+def test_figure_manifest_records_scope_and_layout(tmp_path: Path):
     stroke = _write_run(tmp_path, "stroke")
     sepsis = _write_run(tmp_path, "sepsis")
     generated = [tmp_path / "figure.png"]
@@ -97,3 +104,6 @@ def test_figure_manifest_records_stability_scope(tmp_path: Path):
     manifest = json.loads(path.read_text(encoding="utf-8"))
     assert manifest["stability_selection_figure_included"] is False
     assert manifest["pca_display_seed"] == 11
+    assert manifest["effect_size_metrics_separated"] is True
+    assert manifest["heatmap_colorbars_dedicated"] is True
+    assert manifest["figure_standard"] == "Scientific Figure Master Standard v8"
