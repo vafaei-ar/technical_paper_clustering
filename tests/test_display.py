@@ -20,3 +20,12 @@ def test_display_name_handles_generic_machine_names():
         "Serum albumin",
         "Lymphocyte percentage",
     ]
+
+
+def test_display_name_polishes_manuscript_context_labels():
+    assert display_name("Pat pref language spoken") == "Preferred language"
+    assert display_name("SVI overal rank22") == "Social Vulnerability Index overall rank"
+    assert display_name("SVI ses rank22") == "SVI socioeconomic status rank"
+    assert display_name("SVI race rank22") == "SVI racial and ethnic minority status rank"
+    assert display_name("ADI nat rank22") == "Area Deprivation Index national rank"
+    assert display_name("Pct urban") == "Percent urban"
