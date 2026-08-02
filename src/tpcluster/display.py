@@ -22,9 +22,18 @@ DISPLAY_OVERRIDES = {
     "symptom_shortness_of_breath": "Shortness of breath",
     "pulmonary_imaging_findings": "Pulmonary imaging abnormality",
     "PAT_PREF_LANGUAGE_SPOKEN": "Preferred language",
+    "Pat pref language spoken": "Preferred language",
     "SVI_OVERAL_RANK22": "Social Vulnerability Index overall rank",
+    "SVI overal rank22": "Social Vulnerability Index overall rank",
+    "SVI overall rank22": "Social Vulnerability Index overall rank",
     "SVI_SES_RANK22": "SVI socioeconomic status rank",
+    "SVI ses rank22": "SVI socioeconomic status rank",
     "SVI_RACE_RANK22": "SVI racial and ethnic minority status rank",
+    "SVI race rank22": "SVI racial and ethnic minority status rank",
+    "ADI_NAT_RANK22": "Area Deprivation Index national rank",
+    "ADI nat rank22": "Area Deprivation Index national rank",
+    "PCT_URBAN": "Percent urban",
+    "Pct urban": "Percent urban",
     "RUCA_CODE": "Rural-urban commuting category",
     "HISPANIC": "Hispanic ethnicity",
 }
@@ -57,6 +66,8 @@ def display_name(value: object) -> str:
 
     cleaned = re.sub(r"[_\-]+", " ", text).strip()
     cleaned = re.sub(r"\s+", " ", cleaned)
+    if cleaned in DISPLAY_OVERRIDES:
+        return DISPLAY_OVERRIDES[cleaned]
     if not cleaned:
         return text
 
