@@ -1,0 +1,70 @@
+stroke:
+  primary:
+    name: stroke_pca_kmeans_k3
+    reduction: pca
+    clusterer: kmeans
+    k: 3
+    reference_seed: 11
+    rationale: >-
+      Selected as the primary solution after integrating internal validity,
+      cluster-size adequacy, agreement across seeds and repeated subsamples,
+      and clinical interpretability on the original measurement scale.
+  sensitivity:
+    - name: stroke_pca_kmeans_k2
+      reduction: pca
+      clusterer: kmeans
+      k: 2
+      reference_seed: 11
+      rationale: Coarser cluster-count sensitivity analysis.
+  profiled:
+    - name: stroke_raw_agg_k2
+      reduction: none
+      clusterer: agglomerative
+      k: 2
+      reference_seed: 11
+      rationale: Raw-space agglomerative comparison retained for model profiling.
+    - name: stroke_raw_agg_k3
+      reduction: none
+      clusterer: agglomerative
+      k: 3
+      reference_seed: 11
+      rationale: Raw-space agglomerative comparison retained for model profiling.
+
+sepsis:
+  primary:
+    name: sepsis_pca_kmeans_k3
+    reduction: pca
+    clusterer: kmeans
+    k: 3
+    reference_seed: 11
+    rationale: >-
+      Selected as the primary solution after integrating internal validity,
+      cluster-size adequacy, agreement across seeds and repeated subsamples,
+      representation sensitivity, and clinical interpretability on the original
+      measurement scale.
+  sensitivity:
+    - name: sepsis_pca_kmeans_k2
+      reduction: pca
+      clusterer: kmeans
+      k: 2
+      reference_seed: 11
+      rationale: Coarser cluster-count sensitivity analysis.
+    - name: sepsis_raw_kmeans_k3
+      reduction: none
+      clusterer: kmeans
+      k: 3
+      reference_seed: 11
+      rationale: Raw-space representation sensitivity analysis.
+  profiled:
+    - name: sepsis_raw_kmeans_k2
+      reduction: none
+      clusterer: kmeans
+      k: 2
+      reference_seed: 11
+      rationale: Raw-space two-cluster comparison retained for model profiling.
+    - name: sepsis_raw_agg_k3
+      reduction: none
+      clusterer: agglomerative
+      k: 3
+      reference_seed: 11
+      rationale: Raw-space agglomerative comparison retained for model profiling.
