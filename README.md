@@ -59,6 +59,26 @@ Additional corrections include:
 - a clear PCA caption stating that the two-dimensional plot is a visual projection rather than the complete clustering space;
 - an analysis manifest recording the Git commit and configuration used.
 
+## Candidate-model selection table
+
+The supplementary candidate-model table consolidates the complete clustering grid rather than only the shortlisted models. It reports internal validity across seeds, cluster-size gates, pairwise seed agreement, the reference-seed solution, and available repeated-subsample agreement.
+
+The model roles and concise selection rationales are recorded in `configs/manuscript_models.yaml`.
+
+Generate the tables without refitting any clustering models:
+
+```bash
+python generate_candidate_model_summary.py --config configs/stroke.yaml
+python generate_candidate_model_summary.py --config configs/sepsis.yaml
+```
+
+The outputs are written to each completed run:
+
+```text
+results/<cohort>/<run_id>/manuscript_outputs/tables/
+  tableS_candidate_model_selection.csv
+```
+
 ## Paper-level publication figures
 
 After both cohort runs and manuscript outputs exist, generate the compact paper-level figures with:
