@@ -9,6 +9,18 @@ import pandas as pd
 import yaml
 
 
+SUBSAMPLE_COLUMNS = [
+    "mean_subsample_ari",
+    "median_subsample_ari",
+    "sd_subsample_ari",
+    "minimum_subsample_ari",
+    "p10_subsample_ari",
+    "p25_subsample_ari",
+    "subsample_minimum_cluster_fraction",
+    "subsample_mean_minimum_cluster_fraction",
+]
+
+
 def load_yaml(path: str | Path) -> dict[str, Any]:
     with open(path, encoding="utf-8") as file:
         return yaml.safe_load(file) or {}
@@ -56,7 +68,7 @@ def model_registry(dataset: str, path: str | Path) -> dict[tuple[str, str, int],
 
 def summarize_seed_metrics(metrics: pd.DataFrame) -> pd.DataFrame:
     group_cols = ["dataset", "reduction", "clusterer", "k"]
-    summary = metrics.groupby(group_cols, as_index=False).agg(
+    return metrics.groupby(group_cols, as_index=False).agg(
         n_seeds=("seed", "nunique"),
         n_components_min=("n_components", "min"),
         n_components_max=("n_components", "max"),
@@ -73,7 +85,6 @@ def summarize_seed_metrics(metrics: pd.DataFrame) -> pd.DataFrame:
         cluster_size_gate_pass_rate=("passes_cluster_size_gate", "mean"),
         all_seeds_pass_cluster_size_gate=("passes_cluster_size_gate", "all"),
     )
-    return summary
 
 
 def summarize_seed_stability(seed_stability: pd.DataFrame) -> pd.DataFrame:
@@ -117,13 +128,11 @@ def summarize_reference_seed(metrics: pd.DataFrame, default_seed: int) -> pd.Dat
 def load_subsample_summary(run_dir: Path) -> pd.DataFrame:
     path = run_dir / "subsample_stability_summary.csv"
     if not path.exists():
-        return pd.DataFrame(
-            columns=["dataset", "reduction", "clusterer", "k"]
-        )
+        return pd.DataFrame(columns=["dataset", "reduction", "clusterer", "k", *SUBSAMPLE_COLUMNS])
+
     table = pd.read_csv(path)
     keep = [
         "dataset",
-        "candidate",
         "reduction",
         "clusterer",
         "k",
@@ -136,16 +145,17 @@ def load_subsample_summary(run_dir: Path) -> pd.DataFrame:
         "minimum_cluster_fraction",
         "mean_minimum_cluster_fraction",
     ]
-    keep = [column for column in keep if column in table.columns]
-    table = table[keep].copy()
-    if "minimum_cluster_fraction" in table.columns:
-        table = table.rename(
-            columns={
-                "minimum_cluster_fraction": "subsample_minimum_cluster_fraction",
-                "mean_minimum_cluster_fraction": "subsample_mean_minimum_cluster_fraction",
-            }
-        )
-    return table
+    table = table[[column for column in keep if column in table.columns]].copy()
+    table = table.rename(
+        columns={
+            "minimum_cluster_fraction": "subsample_minimum_cluster_fraction",
+            "mean_minimum_cluster_fraction": "subsample_mean_minimum_cluster_fraction",
+        }
+    )
+    for column in SUBSAMPLE_COLUMNS:
+        if column not in table.columns:
+            table[column] = np.nan
+    return table[["dataset", "reduction", "clusterer", "k", *SUBSAMPLE_COLUMNS]]
 
 
 def add_ranks(table: pd.DataFrame) -> pd.DataFrame:
@@ -160,8 +170,6 @@ def add_ranks(table: pd.DataFrame) -> pd.DataFrame:
     }
     for output, (column, ascending) in rank_specs.items():
         ranked[output] = np.nan
-        if column not in ranked.columns:
-            continue
         values = ranked.loc[eligible, column]
         ranked.loc[eligible, output] = values.rank(
             method="min", ascending=ascending, na_option="bottom"
@@ -195,15 +203,12 @@ def build_summary(
         how="left",
         validate="one_to_one",
     )
-
-    subsample = load_subsample_summary(run_dir)
-    if not subsample.empty:
-        summary = summary.merge(
-            subsample,
-            on=["dataset", "reduction", "clusterer", "k"],
-            how="left",
-            validate="one_to_one",
-        )
+    summary = summary.merge(
+        load_subsample_summary(run_dir),
+        on=["dataset", "reduction", "clusterer", "k"],
+        how="left",
+        validate="one_to_one",
+    )
 
     registry = model_registry(dataset, models_path)
     names: list[str] = []
@@ -212,9 +217,7 @@ def build_summary(
     for row in summary.itertuples(index=False):
         key = model_key(row.reduction, row.clusterer, row.k)
         item = registry.get(key, {})
-        names.append(
-            str(item.get("name", f"{dataset}_{row.reduction}_{row.clusterer}_k{row.k}"))
-        )
+        names.append(str(item.get("name", f"{dataset}_{row.reduction}_{row.clusterer}_k{row.k}")))
         statuses.append(str(item.get("selection_status", "not_shortlisted")))
         rationales.append(str(item.get("rationale", "")))
     summary.insert(1, "candidate", names)
@@ -248,9 +251,7 @@ def main() -> None:
         )
     )
     parser.add_argument("--config", required=True)
-    parser.add_argument(
-        "--models", default="configs/manuscript_models.yaml"
-    )
+    parser.add_argument("--models", default="configs/manuscript_models.yaml")
     parser.add_argument("--run-dir")
     args = parser.parse_args()
 
