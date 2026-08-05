@@ -1,0 +1,19 @@
+stroke:
+  anchor_features:
+    - feature: Glucose
+      role: Highest median glucose identifies the hyperglycaemic phenotype.
+    - feature: Hematocrit
+      role: Lower median hematocrit identifies the renal-anaemic phenotype among the remaining clusters.
+    - feature: Creatinine
+      role: Higher median creatinine deterministically breaks the renal-anaemic tie.
+  note: Anchor features define deterministic phenotype names and are not independent validation evidence.
+
+sepsis:
+  anchor_features:
+    - feature: IG #
+      role: Highest median immature granulocyte count identifies the IG-high organ-dysfunction phenotype.
+    - feature: Eosinophils %
+      role: Higher median eosinophil percentage identifies the eosinophil-lymphocyte-enriched phenotype among the remaining clusters.
+    - feature: Lymphocytes %
+      role: Higher median lymphocyte percentage deterministically breaks the enrichment tie.
+  note: Anchor features define deterministic phenotype names and are not independent validation evidence.
