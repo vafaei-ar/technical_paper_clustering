@@ -1,0 +1,24 @@
+dataset_name: synthetic
+input_path: examples/data/synthetic_clinical_cohort.parquet
+id_column: PATID
+output_dir: results/synthetic
+features:
+  primary:
+    - AGE_AT_EVENT
+    - Creatinine
+    - Glucose
+    - Hemoglobin
+    - Diabetes
+    - Chronic_kidney_disease
+    - Heart_failure
+preprocessing:
+  scaler: robust
+  remove_zero_variance: true
+  clip_quantiles: [0.005, 0.995]
+reductions: [none, pca]
+clusterers: [kmeans, gmm, agglomerative]
+k_values: [2, 3, 4]
+seeds: [11, 23, 37]
+quality_gates:
+  minimum_cluster_fraction: 0.05
+  minimum_cluster_n: 20
