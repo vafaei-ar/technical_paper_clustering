@@ -16,7 +16,7 @@ LONG_LABELS = {
         2: "Hyperglycaemic diabetes",
     },
     "sepsis": {
-        0: "Neutrophil-predominant, lower-acuity",
+        0: "Neutrophil-predominant, lower organ-dysfunction burden",
         1: "Immature-granulocyte-high organ dysfunction",
         2: "Eosinophil-lymphocyte-enriched",
     },
