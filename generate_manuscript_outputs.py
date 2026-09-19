@@ -65,13 +65,27 @@ DISCHARGE_GROUPS = {
 }
 
 
+def subsample_summary_path(run_dir: str | Path) -> Path:
+    run_dir = Path(run_dir)
+    full_refit = run_dir / "subsample_stability_full_refit_summary.csv"
+    if full_refit.exists():
+        return full_refit
+    conditional = run_dir / "subsample_stability_summary.csv"
+    if conditional.exists():
+        return conditional
+    raise FileNotFoundError(f"No subsample-stability summary found under {run_dir}")
+
+
 def latest_full_run(output_dir: str | Path) -> Path:
     runs = [
         path
         for path in Path(output_dir).iterdir()
         if path.is_dir()
         and (path / "candidate_profiles" / "candidate_assignments.parquet").exists()
-        and (path / "subsample_stability_summary.csv").exists()
+        and (
+            (path / "subsample_stability_full_refit_summary.csv").exists()
+            or (path / "subsample_stability_summary.csv").exists()
+        )
     ]
     if not runs:
         raise FileNotFoundError(f"No completed run found under {output_dir}")
@@ -519,7 +533,8 @@ def main() -> None:
         table_dir / "table_sensitivity_agreement.csv",
         index=False,
     )
-    pd.read_csv(run_dir / "subsample_stability_summary.csv").to_csv(
+    stability_source = subsample_summary_path(run_dir)
+    pd.read_csv(stability_source).to_csv(
         table_dir / "table_subsample_stability.csv",
         index=False,
     )
