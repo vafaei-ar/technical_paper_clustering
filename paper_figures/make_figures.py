@@ -741,6 +741,7 @@ def figure4(data, reporting, outdir, pdf, dpi, phenotype_image=None):
             "Phenotype heatmap image not found. Run regenerate_methods_revision_reporting.sh "
             "first or pass --phenotype-image."
         )
+
     img = plt.imread(phenotype_image)
     rgb = img[..., :3] if img.ndim == 3 else img
     mask = np.any(rgb < 0.985, axis=2) if rgb.ndim == 3 else (rgb < 0.985)
@@ -751,134 +752,85 @@ def figure4(data, reporting, outdir, pdf, dpi, phenotype_image=None):
         r0, r1 = max(0, rows[0] - pad), min(img.shape[0], rows[-1] + pad + 1)
         c0, c1 = max(0, cols[0] - pad), min(img.shape[1], cols[-1] + pad + 1)
         img = img[r0:r1, c0:c1]
-    fig = plt.figure(figsize=(14, 8.75))
+
+    fig = plt.figure(figsize=(14, 8.35))
     fig.suptitle(
         "Figure 4. Selected cluster profiles are interpretable, but robustness differs by cohort",
         x=0.035,
         y=0.975,
         ha="left",
-        fontsize=20,
+        fontsize=18.5,
         fontweight="bold",
         color=INK,
     )
     gs = fig.add_gridspec(
-        1,
         2,
-        width_ratios=[2.7, 0.95],
-        wspace=0.035,
+        1,
+        height_ratios=[4.4, 1.35],
+        hspace=0.12,
         left=0.035,
         right=0.985,
-        top=0.92,
-        bottom=0.035,
+        top=0.90,
+        bottom=0.055,
     )
+
     ax = fig.add_subplot(gs[0, 0])
     ax.imshow(img)
     ax.axis("off")
     ax.set_title(
         "A  Data-faithful phenotype profiles",
         loc="left",
-        fontsize=15,
+        fontsize=14.5,
         fontweight="bold",
         color=INK,
-        pad=10,
+        pad=6,
     )
-    axr = fig.add_subplot(gs[0, 1])
-    axr.axis("off")
-    rounded(axr, (0, 0), 1, 1)
-    axr.text(
-        0.05,
-        0.94,
-        "B  Interpretation",
-        transform=axr.transAxes,
-        fontsize=15,
-        fontweight="bold",
-        color=INK,
+
+    axb = fig.add_subplot(gs[1, 0])
+    axb.axis("off")
+    rounded(axb, (0.00, 0.02), 1.00, 0.96)
+
+    rounded(axb, (0.02, 0.18), 0.47, 0.66, fc="#EAF2FB", ec="#BDD4EA")
+    axb.text(
+        0.04, 0.73, "B  Stroke: coherent profiles, moderate membership sensitivity",
+        transform=axb.transAxes, fontsize=10.5, fontweight="bold", color=BLUE,
     )
-    cards = [
-        (
-            0.05,
-            0.58,
-            0.90,
-            0.28,
-            "Stroke",
-            "#EAF2FB",
-            BLUE,
-            [
-                "Preserved hematologic: lower overall burden.",
-                "Renal-anemic: lower hematologic indices and higher creatinine.",
-                "Hyperglycemic: higher glucose and diabetes burden.",
-            ],
-            "Membership shifts under balanced-block weighting (ARI 0.543).",
-        ),
-        (
-            0.05,
-            0.17,
-            0.90,
-            0.33,
-            "Sepsis",
-            "#FDF0E4",
-            ORANGE,
-            [
-                "Reference/neutrophil: large reference group.",
-                "IG-high: immature-granulocyte and organ-dysfunction signal.",
-                "Eosinophil-lymphocyte: eosinophil/lymphocyte enrichment.",
-            ],
-            "Descriptive only: balanced-block ARI 0.141; WBC feature sensitivity ARI 0.149-0.366.",
-        ),
-    ]
-    for x, y, w, h, title, fc, c, bullets, caution in cards:
-        rounded(axr, (x, y), w, h, fc=fc, ec=c, lw=0.9)
-        axr.text(
-            x + 0.03,
-            y + h - 0.05,
-            title,
-            transform=axr.transAxes,
-            fontsize=12,
-            fontweight="bold",
-            color=c,
-            va="top",
-        )
-        yy = y + h - 0.12
-        for b in bullets:
-            axr.text(
-                x + 0.05,
-                yy,
-                "• " + b,
-                transform=axr.transAxes,
-                fontsize=8.8,
-                color=TEXT,
-                va="top",
-                wrap=True,
-            )
-            yy -= 0.055
-        axr.text(
-            x + 0.03,
-            y + 0.05,
-            caution,
-            transform=axr.transAxes,
-            fontsize=8.4,
-            color=RED,
-            fontweight="bold",
-            va="bottom",
-            wrap=True,
-        )
-    axr.text(
-        0.05,
-        0.08,
-        "Main message",
-        transform=axr.transAxes,
-        fontsize=10.5,
-        fontweight="bold",
-        color=INK,
+    axb.text(
+        0.05, 0.60,
+        "Preserved hematologic: comparatively near-baseline hematologic profile and lower burden.\n"
+        "Renal-anemic: lower erythrocytes, hemoglobin and hematocrit with higher creatinine.\n"
+        "Hyperglycemic: markedly higher glucose and diabetes burden.",
+        transform=axb.transAxes, fontsize=8.6, color=TEXT, va="top", linespacing=1.35,
     )
-    axr.text(
-        0.05,
-        0.03,
-        "Profiles can look clinically coherent even when cluster membership is specification-sensitive.",
-        transform=axr.transAxes,
-        fontsize=8.8,
-        color=TEXT,
-        wrap=True,
+    axb.text(
+        0.05, 0.25,
+        "Balanced-block weighting changes membership (ARI 0.543), so individual boundaries remain specification-sensitive.",
+        transform=axb.transAxes, fontsize=8.2, color=RED, fontweight="bold", va="top",
+    )
+
+    rounded(axb, (0.51, 0.18), 0.47, 0.66, fc="#FDF0E4", ec="#F1C395")
+    axb.text(
+        0.53, 0.73, "C  Sepsis: interpretable profiles, but substantially weaker robustness",
+        transform=axb.transAxes, fontsize=10.5, fontweight="bold", color=ORANGE,
+    )
+    axb.text(
+        0.54, 0.60,
+        "Reference / neutrophil: large reference group with smaller relative deviations.\n"
+        "IG-high: prominent immature-granulocyte signal with organ-dysfunction differences.\n"
+        "Eosinophil-lymphocyte: eosinophil/lymphocyte enrichment with lower neutrophils.",
+        transform=axb.transAxes, fontsize=8.6, color=TEXT, va="top", linespacing=1.35,
+    )
+    axb.text(
+        0.54, 0.25,
+        "Treat as descriptive rather than validated biological subtypes: balanced-block ARI 0.141; "
+        "WBC feature sensitivity ARI 0.149-0.366.",
+        transform=axb.transAxes, fontsize=8.2, color=RED, fontweight="bold", va="top",
+    )
+
+    axb.text(
+        0.50, 0.07,
+        "Profiles may be clinically coherent even when cluster membership is sensitive to reasonable specification changes.",
+        transform=axb.transAxes, ha="center", fontsize=8.8, fontweight="bold", color=INK,
     )
     return save(fig, outdir, "fig4_phenotypes", pdf, dpi)
 
