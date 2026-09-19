@@ -92,7 +92,20 @@ def load_inputs(reporting: Path):
     missing = [str(p) for p in files.values() if not p.exists()]
     if missing:
         raise FileNotFoundError("Missing reporting outputs:\n" + "\n".join(missing))
-    return {k: pd.read_csv(v) for k, v in files.items()}
+
+    data = {k: pd.read_csv(v) for k, v in files.items()}
+
+    # The 100 replicate null files live in results/methods_revision rather than
+    # the reporting directory. Use them when available so Figure 3 shows the
+    # actual null distribution rather than a synthetic approximation.
+    methods_dir = reporting.parent / "methods_revision"
+    for cohort in ("stroke", "sepsis"):
+        p = methods_dir / f"null_reference_silhouette_extended_{cohort}.csv"
+        if p.exists():
+            data[f"null_reps_{cohort}"] = pd.read_csv(p)
+        else:
+            data[f"null_reps_{cohort}"] = None
+    return data
 
 
 def candidate_rows(df):
