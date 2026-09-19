@@ -66,3 +66,8 @@ python paper_figures/make_figures.py \
 5. Specification robustness
 
 The figures are reporting-only. Numerical panels are generated from the machine-readable analysis outputs. Figure 4 embeds the final data-faithful phenotype heatmap produced by the existing reporting pipeline.
+
+
+## Compact journal layout
+
+The current generator uses the compact journal layout: reduced canvas height, tighter panel spacing, minimal export padding, and automatic white-border cropping for the phenotype heatmap. This version replaces the earlier spacious presentation-style layout.
