@@ -68,9 +68,9 @@ def clean_axis(ax, grid=True):
 def save(fig, outdir: Path, stem: str, pdf: bool, dpi: int):
     outdir.mkdir(parents=True, exist_ok=True)
     png = outdir / f"{stem}.png"
-    fig.savefig(png, dpi=dpi, bbox_inches="tight", pad_inches=0.05)
+    fig.savefig(png, dpi=dpi, bbox_inches="tight", pad_inches=0.02)
     if pdf:
-        fig.savefig(outdir / f"{stem}.pdf", bbox_inches="tight", pad_inches=0.05)
+        fig.savefig(outdir / f"{stem}.pdf", bbox_inches="tight", pad_inches=0.02)
     plt.close(fig)
     return png
 
@@ -118,7 +118,7 @@ def candidate_rows(df):
 
 
 def figure1(outdir, pdf, dpi):
-    fig = plt.figure(figsize=(14, 10.5))
+    fig = plt.figure(figsize=(14, 8.6))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.axis("off")
     fig.text(
@@ -369,11 +369,11 @@ def figure1(outdir, pdf, dpi):
 def figure2(data, outdir, pdf, dpi):
     stroke = candidate_rows(data["stroke_audit"])
     sepsis = candidate_rows(data["sepsis_audit"])
-    fig = plt.figure(figsize=(14, 9.5))
+    fig = plt.figure(figsize=(14, 8.2))
     fig.suptitle(
         "Figure 2. Model-selection landscape and selected solutions",
         x=0.035,
-        y=0.985,
+        y=0.975,
         ha="left",
         fontsize=21,
         fontweight="bold",
@@ -382,13 +382,13 @@ def figure2(data, outdir, pdf, dpi):
     gs = fig.add_gridspec(
         2,
         2,
-        height_ratios=[3.2, 1.3],
-        hspace=0.34,
-        wspace=0.18,
-        left=0.07,
-        right=0.98,
-        top=0.90,
-        bottom=0.08,
+        height_ratios=[3.35, 1.08],
+        hspace=0.22,
+        wspace=0.16,
+        left=0.065,
+        right=0.985,
+        top=0.91,
+        bottom=0.055,
     )
     shape = {"PCA k-means": "o", "Raw k-means": "s", "Raw agglomerative": "^"}
     color_k = {2: "#377EB8", 3: "#E0701C", 4: "#3FA65A"}
@@ -514,11 +514,11 @@ def figure2(data, outdir, pdf, dpi):
 def figure3(data, outdir, pdf, dpi):
     ext = data["null_ext"].set_index("dataset")
     nested = data["null_nested"].set_index("dataset")
-    fig = plt.figure(figsize=(14, 9.5))
+    fig = plt.figure(figsize=(14, 8.2))
     fig.suptitle(
         "Figure 3. Null-reference benchmarking distinguishes robust structure from plausible artifacts",
         x=0.035,
-        y=0.985,
+        y=0.975,
         ha="left",
         fontsize=20,
         fontweight="bold",
@@ -527,13 +527,13 @@ def figure3(data, outdir, pdf, dpi):
     gs = fig.add_gridspec(
         2,
         2,
-        height_ratios=[2.4, 1.65],
-        hspace=0.26,
-        wspace=0.20,
-        left=0.07,
-        right=0.98,
-        top=0.90,
-        bottom=0.08,
+        height_ratios=[2.15, 1.42],
+        hspace=0.20,
+        wspace=0.18,
+        left=0.065,
+        right=0.985,
+        top=0.91,
+        bottom=0.055,
     )
     positions = {}
     for j, (name, c) in enumerate([("stroke", BLUE), ("sepsis", ORANGE)]):
@@ -716,11 +716,20 @@ def figure4(data, reporting, outdir, pdf, dpi, phenotype_image=None):
             "first or pass --phenotype-image."
         )
     img = plt.imread(phenotype_image)
-    fig = plt.figure(figsize=(14, 10.5))
+    rgb = img[..., :3] if img.ndim == 3 else img
+    mask = np.any(rgb < 0.985, axis=2) if rgb.ndim == 3 else (rgb < 0.985)
+    rows = np.where(mask.any(axis=1))[0]
+    cols = np.where(mask.any(axis=0))[0]
+    if len(rows) and len(cols):
+        pad = 6
+        r0, r1 = max(0, rows[0] - pad), min(img.shape[0], rows[-1] + pad + 1)
+        c0, c1 = max(0, cols[0] - pad), min(img.shape[1], cols[-1] + pad + 1)
+        img = img[r0:r1, c0:c1]
+    fig = plt.figure(figsize=(14, 8.75))
     fig.suptitle(
         "Figure 4. Selected cluster profiles are interpretable, but robustness differs by cohort",
         x=0.035,
-        y=0.985,
+        y=0.975,
         ha="left",
         fontsize=20,
         fontweight="bold",
@@ -729,12 +738,12 @@ def figure4(data, reporting, outdir, pdf, dpi, phenotype_image=None):
     gs = fig.add_gridspec(
         1,
         2,
-        width_ratios=[2.35, 1],
-        wspace=0.06,
-        left=0.04,
-        right=0.98,
-        top=0.91,
-        bottom=0.06,
+        width_ratios=[2.7, 0.95],
+        wspace=0.035,
+        left=0.035,
+        right=0.985,
+        top=0.92,
+        bottom=0.035,
     )
     ax = fig.add_subplot(gs[0, 0])
     ax.imshow(img)
@@ -879,11 +888,11 @@ def figure5(data, outdir, pdf, dpi):
             sens[(sens.cohort == cohort) & (sens.sensitivity == name)].ari.iloc[0]
         )
 
-    fig = plt.figure(figsize=(14, 10.2))
+    fig = plt.figure(figsize=(14, 8.8))
     fig.suptitle(
         "Figure 5. Robustness differs across reasonable clustering specifications",
         x=0.035,
-        y=0.985,
+        y=0.975,
         ha="left",
         fontsize=20,
         fontweight="bold",
@@ -892,12 +901,12 @@ def figure5(data, outdir, pdf, dpi):
     gs = fig.add_gridspec(
         2,
         2,
-        hspace=0.32,
-        wspace=0.22,
-        left=0.07,
-        right=0.98,
-        top=0.90,
-        bottom=0.10,
+        hspace=0.20,
+        wspace=0.18,
+        left=0.065,
+        right=0.985,
+        top=0.91,
+        bottom=0.07,
     )
 
     ax = fig.add_subplot(gs[0, 0])
@@ -987,7 +996,7 @@ def figure5(data, outdir, pdf, dpi):
 
     fig.text(
         0.5,
-        0.035,
+        0.025,
         "Takeaway: representation is nearly invariant, but weighting and feature specification expose "
         "much greater fragility in sepsis than in stroke.",
         ha="center",
