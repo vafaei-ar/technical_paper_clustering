@@ -71,3 +71,25 @@ The figures are reporting-only. Numerical panels are generated from the machine-
 ## Compact journal layout
 
 The current generator uses the compact journal layout: reduced canvas height, tighter panel spacing, minimal export padding, and automatic white-border cropping for the phenotype heatmap. This version replaces the earlier spacious presentation-style layout.
+
+
+## Better-aligned manuscript layout
+
+The current generator uses the tighter manuscript layout reviewed in September 2026. It keeps the improved alignment and compact panel geometry while reading the **real reviewer-driven analysis outputs** from `results/methods_revision_reporting/`.
+
+Important implementation details:
+
+- Figure 3 uses the actual 100 Gaussian-copula null replicate silhouettes from `results/methods_revision/` when those CSV files are available. It does not synthesize a null distribution.
+- Figure 4 keeps the real phenotype heatmap produced by the analysis/reporting pipeline. It does not substitute the mock-up heatmap values.
+- Figures 2 and 5 read the final candidate-audit, full-refit stability, balanced-block, representation, and WBC-redundancy outputs.
+- Figure 1 reports the final workflow, including 80% subsampling with full preprocessing refit and 50 repeats.
+
+Generate the complete set with:
+
+```bash
+python paper_figures/make_figures.py \
+  --outdir results/final_paper_figures_v3 \
+  --pdf
+```
+
+The PNG and PDF files can be opened or downloaded directly from `results/final_paper_figures_v3/`; no local server is required.
