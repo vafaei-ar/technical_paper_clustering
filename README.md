@@ -125,3 +125,16 @@ sepsis: ed4fed84e5c3d533b2fc84177d471fc881e3b5a7e24c404faf10f75556963763
 ```
 
 Verify local inputs before reproducing the paper outputs.
+
+
+## Final manuscript figure set
+
+The reviewer-driven manuscript figures are generated from the completed analysis outputs with:
+
+```bash
+python paper_figures/make_figures.py --pdf
+```
+
+The script reads `results/methods_revision_reporting/` and writes 600-dpi PNG and vector PDF files to `results/final_paper_figures/`. It is reporting-only and does not refit clustering models.
+
+See `paper_figures/README.md` for individual-figure options and the Figure 4 phenotype-heatmap dependency.
