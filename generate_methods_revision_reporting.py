@@ -85,63 +85,138 @@ def make_figure2(
     methods_dir: Path,
     output_dir: Path,
 ) -> list[Path]:
+    """Show model-selection tradeoffs and a unimodal null reference."""
     tables = {
         "Stroke": candidate_tradeoff_table(stroke_run),
         "Sepsis": candidate_tradeoff_table(sepsis_run),
     }
     null_tables = {
-        "Stroke": pd.read_csv(methods_dir / "null_reference_silhouette_extended_stroke.csv"),
-        "Sepsis": pd.read_csv(methods_dir / "null_reference_silhouette_extended_sepsis.csv"),
+        "Stroke": pd.read_csv(
+            methods_dir / "null_reference_silhouette_extended_stroke.csv"
+        ),
+        "Sepsis": pd.read_csv(
+            methods_dir / "null_reference_silhouette_extended_sepsis.csv"
+        ),
     }
     null_summary = pd.read_csv(
         methods_dir / "null_reference_silhouette_extended_summary.csv"
     ).set_index("dataset")
 
-    fig, axes = plt.subplots(2, 2, figsize=(11.2, 8.2))
+    family_style = {
+        ("pca", "kmeans"): ("o", "PCA k-means"),
+        ("none", "kmeans"): ("s", "Raw k-means"),
+        ("none", "agglomerative"): ("^", "Raw agglomerative"),
+    }
+
+    fig, axes = plt.subplots(2, 2, figsize=(11.4, 8.3))
     for col, cohort in enumerate(["Stroke", "Sepsis"]):
         ax = axes[0, col]
         table = tables[cohort].copy()
+
+        for (reduction, clusterer), group in table.groupby(
+            ["reduction", "clusterer"], sort=False
+        ):
+            marker, label = family_style.get(
+                (str(reduction).lower(), str(clusterer).lower()),
+                ("o", f"{reduction} {clusterer}"),
+            )
+            ax.scatter(
+                group["silhouette"],
+                group["mean_subsample_ari"],
+                s=58,
+                marker=marker,
+                alpha=0.82,
+                label=label,
+                zorder=3,
+            )
+
+        selected = table[
+            table["reduction"].astype(str).str.lower().eq("pca")
+            & table["clusterer"].astype(str).str.lower().eq("kmeans")
+            & (pd.to_numeric(table["k"], errors="coerce") == 3)
+        ].iloc[0]
         ax.scatter(
-            table["silhouette"],
-            table["mean_subsample_ari"],
-            s=55,
-            alpha=0.75,
+            [selected["silhouette"]],
+            [selected["mean_subsample_ari"]],
+            s=190,
+            marker="*",
+            edgecolors="black",
+            linewidths=0.8,
+            zorder=5,
         )
+
+        # Compact k labels keep the upper-left stroke panel readable.
         for _, row in table.iterrows():
-            selected = (
+            is_selected = (
                 str(row["reduction"]).lower() == "pca"
                 and str(row["clusterer"]).lower() == "kmeans"
                 and int(row["k"]) == 3
             )
-            if selected:
-                ax.scatter(
-                    [row["silhouette"]],
-                    [row["mean_subsample_ari"]],
-                    s=180,
-                    marker="*",
-                    zorder=5,
-                    edgecolors="black",
-                    linewidths=0.8,
-                )
+            text_label = "Selected k=3" if is_selected else f"k={int(row['k'])}"
+            dy = 6
+            if cohort == "Stroke":
+                if (
+                    str(row["reduction"]).lower() == "none"
+                    and str(row["clusterer"]).lower() == "kmeans"
+                ):
+                    dy = -13
+                elif int(row["k"]) == 2 and str(row["reduction"]).lower() == "pca":
+                    dy = -13
+            else:
+                if (
+                    str(row["reduction"]).lower() == "none"
+                    and str(row["clusterer"]).lower() == "kmeans"
+                ):
+                    dy = -13
             ax.annotate(
-                model_label(row),
+                text_label,
                 (row["silhouette"], row["mean_subsample_ari"]),
-                xytext=(5, 4),
+                xytext=(5, dy),
                 textcoords="offset points",
-                fontsize=7.5,
+                fontsize=7.6,
+                ha="left",
+                va="center",
             )
+
         ax.set_xlabel("Silhouette score")
         ax.set_ylabel("Mean full-refit subsample ARI")
-        ax.set_title(f"{chr(65 + col)}  {cohort}: separation vs stability", loc="left", fontweight="bold")
-        ax.grid(alpha=0.18)
+        ax.set_title(
+            f"{chr(65 + col)}  {cohort}: separation vs stability",
+            loc="left",
+            fontweight="bold",
+        )
+        ax.grid(alpha=0.16)
+        ax.legend(frameon=False, fontsize=7.6, loc="lower left")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
         ax2 = axes[1, col]
         null = null_tables[cohort]["silhouette"].dropna()
-        real = float(null_summary.loc[cohort.lower(), "real_silhouette"])
-        ax2.hist(null, bins=18, alpha=0.65, edgecolor="white")
-        ax2.axvline(real, linewidth=2.2, linestyle="--", label=f"Real = {real:.3f}")
+        summary = null_summary.loc[cohort.lower()]
+        real = float(summary["real_silhouette"])
+        ax2.hist(null, bins=18, alpha=0.72, edgecolor="white")
+        ax2.axvline(
+            real,
+            linewidth=2.2,
+            linestyle="--",
+            label=f"Observed = {real:.3f}",
+        )
+        n_ge = int(summary["n_null_ge_real"])
+        repeats = int(summary["null_repeats"])
+        p = float(summary["empirical_p_silhouette"])
+        ax2.text(
+            0.98,
+            0.96,
+            (
+                f"Null mean = {float(summary['null_silhouette_mean']):.3f}\n"
+                f"Null >= observed: {n_ge}/{repeats}\n"
+                f"Empirical p = {p:.3f}"
+            ),
+            transform=ax2.transAxes,
+            ha="right",
+            va="top",
+            fontsize=8.1,
+        )
         ax2.set_xlabel("Silhouette score")
         ax2.set_ylabel("Null replicates")
         ax2.set_title(
@@ -149,11 +224,11 @@ def make_figure2(
             loc="left",
             fontweight="bold",
         )
-        ax2.legend(frameon=False, fontsize=8)
+        ax2.legend(frameon=False, fontsize=8, loc="upper left")
         ax2.spines["top"].set_visible(False)
         ax2.spines["right"].set_visible(False)
 
-    fig.tight_layout(pad=1.2, w_pad=1.8, h_pad=2.0)
+    fig.tight_layout(pad=1.25, w_pad=2.0, h_pad=2.1)
     output_dir.mkdir(parents=True, exist_ok=True)
     outputs = []
     for ext in ("png", "pdf"):
@@ -166,18 +241,35 @@ def make_figure2(
     plt.close(fig)
     return outputs
 
-
 def dynamic_cluster_labels(run_dir: Path) -> list[str]:
+    """Use compact American-English labels so three groups remain legible."""
     sizes = pd.read_csv(
         run_dir / "manuscript_outputs" / "tables" / "table_cluster_sizes.csv"
     ).sort_values("primary_cluster")
+    replacements = {
+        "Preserved haematologic": "Preserved hematologic",
+        "Renal-anaemic": "Renal-anemic",
+        "Hyperglycaemic": "Hyperglycemic",
+        "Neutrophil-predominant": "Reference / neutrophil",
+        "IG-high organ dysfunction": "IG-high",
+        "Eosinophil-lymphocyte": "Eosinophil-lymphocyte",
+    }
     labels = []
     for _, row in sizes.iterrows():
-        short = str(row.get("primary_cluster_short_label", f"C{int(row['primary_cluster'])}"))
-        short = short.replace("C0 ", "").replace("C1 ", "").replace("C2 ", "")
+        short = str(
+            row.get(
+                "primary_cluster_short_label",
+                f"C{int(row['primary_cluster'])}",
+            )
+        )
+        short = (
+            short.replace("C0 ", "")
+            .replace("C1 ", "")
+            .replace("C2 ", "")
+        )
+        short = replacements.get(short, short)
         labels.append(f"{short}\n(n={int(row['n']):,})")
     return labels
-
 
 def draw_heatmap_panel(
     ax: plt.Axes,
@@ -324,8 +416,7 @@ def make_figure4(methods_dir: Path, output_dir: Path) -> list[Path]:
         ax.set_yticks(y)
         ax.set_yticklabels(sub["sensitivity"], fontsize=9)
         ax.set_xlim(0, 1.0)
-        ax.axvline(0.8, linestyle="--", linewidth=1.0, alpha=0.5)
-        ax.set_xlabel("ARI versus primary PCA k=3 solution")
+        ax.set_xlabel("ARI versus primary PCA k=3 solution (1 = identical)")
         ax.set_title(f"{panel}  {cohort}", loc="left", fontweight="bold")
         for yi, value in zip(y, sub["ari"]):
             ax.text(min(value + 0.02, 0.94), yi, f"{value:.3f}", va="center", fontsize=8.5)
