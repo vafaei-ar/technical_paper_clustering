@@ -527,89 +527,130 @@ def figure2(data, outdir, pdf, dpi):
 def figure3(data, outdir, pdf, dpi):
     ext = data["null_ext"].set_index("dataset")
     nested = data["null_nested"].set_index("dataset")
-    fig = plt.figure(figsize=(14, 8.2))
+    fig = plt.figure(figsize=(14, 8.6))
     fig.suptitle(
         "Figure 3. Null-reference benchmarking distinguishes robust structure from plausible artifacts",
         x=0.035,
         y=0.975,
         ha="left",
-        fontsize=20,
+        fontsize=19,
         fontweight="bold",
         color=INK,
     )
     gs = fig.add_gridspec(
         2,
         2,
-        height_ratios=[2.15, 1.42],
-        hspace=0.20,
+        height_ratios=[1.95, 1.45],
+        hspace=0.19,
         wspace=0.18,
         left=0.065,
         right=0.985,
-        top=0.91,
-        bottom=0.055,
+        top=0.90,
+        bottom=0.06,
     )
+
     positions = {}
-    for j, (name, c) in enumerate([("stroke", BLUE), ("sepsis", ORANGE)]):
+    for j, (name, color) in enumerate([("stroke", BLUE), ("sepsis", ORANGE)]):
         r = ext.loc[name]
         ax = fig.add_subplot(gs[0, j])
         clean_axis(ax, grid=False)
-        lo = float(r.null_silhouette_p05)
-        mean = float(r.null_silhouette_mean)
-        hi = float(r.null_silhouette_p95)
+
         obs = float(r.real_silhouette)
-        mx = float(r.null_silhouette_max)
-        ax.axvspan(lo, hi, color="#DCE7F2", alpha=0.85, label="Null 5th-95th percentile")
-        ax.axvline(mean, color=GRAY, ls="--", lw=2, label=f"Null mean = {mean:.3f}")
-        ax.axvline(obs, color=c, ls="--", lw=2.5, label=f"Observed = {obs:.3f}")
-        ax.scatter([mx], [0.25], marker="|", s=350, color=GRAY, zorder=5)
-        ax.set_ylim(0, 1)
-        ax.set_yticks([])
-        ax.set_xlabel("Silhouette score", fontsize=11)
-        margin = max((hi - lo) * 0.7, 0.015)
-        ax.set_xlim(min(lo, obs) - margin, max(mx, obs) + margin)
+        mean = float(r.null_silhouette_mean)
+        reps = data.get(f"null_reps_{name}")
+        if reps is not None and "silhouette" in reps.columns:
+            vals = reps["silhouette"].dropna().to_numpy()
+            bins = min(18, max(10, int(np.sqrt(len(vals)))))
+            counts, edges = np.histogram(vals, bins=bins, density=True)
+            centers = (edges[:-1] + edges[1:]) / 2
+            ax.fill_between(centers, counts, step="mid", color="#C8D6E5", alpha=0.88)
+            ax.plot(centers, counts, color="#A8BACB", lw=1.2)
+            ymax = max(counts) * 1.25
+            xmin = min(vals.min(), obs)
+            xmax = max(vals.max(), obs)
+        else:
+            lo = float(r.null_silhouette_p05)
+            hi = float(r.null_silhouette_p95)
+            mx = float(r.null_silhouette_max)
+            ax.axvspan(lo, hi, color="#C8D6E5", alpha=0.88)
+            ymax = 1.0
+            ax.set_yticks([])
+            xmin = min(lo, obs)
+            xmax = max(mx, obs)
+
+        ax.axvline(mean, color="#6E7F91", ls=(0, (5, 4)), lw=1.8)
+        ax.axvline(obs, color=color, ls=(0, (5, 4)), lw=2.3)
+        span = xmax - xmin
+        ax.set_xlim(xmin - max(0.006, span * 0.12), xmax + max(0.006, span * 0.12))
+        ax.set_ylim(0, ymax)
+        ax.set_xlabel("Silhouette score", fontsize=10.5)
+        if reps is not None:
+            ax.set_ylabel("Density", fontsize=10.5)
         ttl = "Stroke" if name == "stroke" else "Sepsis"
-        ax.set_title(f"{'AB'[j]}  {ttl}", loc="left", fontsize=16, fontweight="bold", color=INK)
-        msg = (
+        ax.set_title(
+            f"{'AB'[j]}  {ttl}",
+            loc="left",
+            fontsize=15,
+            fontweight="bold",
+            color=INK,
+        )
+
+        verdict = (
             "Observed separation exceeds null reference"
             if name == "stroke"
             else "Observed separation does not exceed null reference"
         )
-        boxc = "#E8F5ED" if name == "stroke" else "#FDF1E4"
         edge = GREEN if name == "stroke" else ORANGE
+        fill = "#E8F5ED" if name == "stroke" else "#FDF1E4"
         ax.text(
-            0.02,
-            0.84,
-            msg,
+            0.98,
+            0.88,
+            verdict,
             transform=ax.transAxes,
-            fontsize=10,
+            ha="right",
+            va="top",
+            fontsize=9.5,
             fontweight="bold",
             color=edge,
-            bbox=dict(boxstyle="round,pad=0.35", fc=boxc, ec=edge, lw=0.8),
+            bbox=dict(boxstyle="round,pad=0.42", fc=fill, ec=edge, lw=0.8),
+        )
+        ax.text(
+            0.03,
+            0.93,
+            f"Null mean = {mean:.3f}\nObserved = {obs:.3f}",
+            transform=ax.transAxes,
+            ha="left",
+            va="top",
+            fontsize=9.0,
+            color=TEXT,
         )
         ax.text(
             0.98,
-            0.78,
+            0.60,
             f"{int(r.n_null_ge_real)}/{int(r.null_repeats)} null replicates >= observed\n"
             f"empirical p = {float(r.empirical_p_silhouette):.3f}",
             transform=ax.transAxes,
             ha="right",
             va="top",
-            fontsize=9.5,
+            fontsize=9.0,
             color=TEXT,
         )
-        ax.legend(frameon=False, loc="lower left", fontsize=8.5)
         positions[name] = (
             obs - mean,
             float(nested.loc[name, "real_mean_full_refit_subsample_ari"]),
         )
 
     ax = fig.add_subplot(gs[1, 0])
-    ax.set_xlim(-0.05, 0.05)
-    ax.set_ylim(0.90, 1.0)
-    clean_axis(ax)
-    ax.axvline(0, color=GRAY, lw=1.2)
-    ax.set_xlabel("Observed silhouette - null mean", fontsize=10.5)
-    ax.set_ylabel("Mean full-refit ARI", fontsize=10.5)
+    clean_axis(ax, grid=True)
+    xs = [positions["sepsis"][0], positions["stroke"][0]]
+    pad = max(abs(min(xs)), abs(max(xs))) * 0.30 + 0.004
+    ax.set_xlim(min(xs) - pad, max(xs) + pad)
+    ax.set_ylim(0.78, 0.995)
+    ax.axvline(0, color="#8393A4", lw=1.0, ls=(0, (4, 3)))
+    ax.axvspan(ax.get_xlim()[0], 0, color="#FDF1E4", alpha=0.55, zorder=0)
+    ax.axvspan(0, ax.get_xlim()[1], color="#E8F5ED", alpha=0.55, zorder=0)
+    ax.set_xlabel("Observed silhouette - null mean", fontsize=10.0)
+    ax.set_ylabel("Mean full-refit subsample ARI", fontsize=10.0)
     ax.set_title(
         "C  Decision map: separation vs reproducibility",
         loc="left",
@@ -617,101 +658,73 @@ def figure3(data, outdir, pdf, dpi):
         fontweight="bold",
         color=INK,
     )
-    for name, c, label in [("stroke", BLUE, "Stroke"), ("sepsis", ORANGE, "Sepsis")]:
+    for name, color, label in [("stroke", BLUE, "Stroke"), ("sepsis", ORANGE, "Sepsis")]:
         x, y = positions[name]
-        ax.scatter(x, y, s=150, color=c, edgecolor="white", linewidth=1, zorder=5)
+        ax.scatter(x, y, s=145, color=color, edgecolor="white", linewidth=1, zorder=5)
+        dx = 8 if name == "stroke" else -8
+        ha = "left" if name == "stroke" else "right"
         ax.annotate(
-            label,
+            f"{label}\nΔ silhouette = {x:+.3f}\nARI = {y:.3f}",
             (x, y),
-            xytext=(7, 5),
+            xytext=(dx, -2),
             textcoords="offset points",
-            fontsize=10,
+            fontsize=8.7,
             fontweight="bold",
-            color=c,
+            color=color,
+            ha=ha,
+            va="top",
         )
     ax.text(
-        0.98,
-        0.95,
-        "Higher than null + stable",
-        transform=ax.transAxes,
-        ha="right",
-        va="top",
-        fontsize=9,
-        color=GREEN,
-        fontweight="bold",
+        0.98, 0.95, "Promising: above null + stable",
+        transform=ax.transAxes, ha="right", va="top",
+        fontsize=8.5, color=GREEN, fontweight="bold",
     )
     ax.text(
-        0.02,
-        0.95,
-        "Null-like + stable",
-        transform=ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=9,
-        color=ORANGE,
-        fontweight="bold",
+        0.02, 0.95, "Caution: null-like + stable",
+        transform=ax.transAxes, ha="left", va="top",
+        fontsize=8.5, color=ORANGE, fontweight="bold",
     )
 
     ax2 = fig.add_subplot(gs[1, 1])
     ax2.axis("off")
     rounded(ax2, (0, 0), 1, 1)
     ax2.text(
-        0.04,
-        0.90,
-        "Key takeaways",
-        transform=ax2.transAxes,
-        fontsize=14,
-        fontweight="bold",
-        color=INK,
+        0.04, 0.90, "Key takeaways",
+        transform=ax2.transAxes, fontsize=13.5,
+        fontweight="bold", color=INK,
     )
-    s = ext.loc["stroke"]
-    e = ext.loc["sepsis"]
+    srow = ext.loc["stroke"]
+    erow = ext.loc["sepsis"]
+
+    rounded(ax2, (0.04, 0.53), 0.92, 0.26, fc="#EAF2FB", ec="#BDD4EA")
     ax2.text(
-        0.05,
-        0.72,
-        "Stroke",
-        transform=ax2.transAxes,
-        fontsize=11,
-        fontweight="bold",
-        color=BLUE,
+        0.07, 0.73, "Stroke: evidence of structure beyond the null",
+        transform=ax2.transAxes, fontsize=10.0, fontweight="bold", color=BLUE,
     )
     ax2.text(
-        0.05,
-        0.61,
-        f"Observed {s.real_silhouette:.3f} vs null mean {s.null_silhouette_mean:.3f}\n"
-        "0/100 null replicates reached the observed value.",
-        transform=ax2.transAxes,
-        fontsize=9.5,
-        color=TEXT,
-        linespacing=1.35,
+        0.07, 0.66,
+        f"Observed {srow.real_silhouette:.3f} vs null mean {srow.null_silhouette_mean:.3f}; "
+        f"0/100 null replicates reached the observed value.\n"
+        f"Full-refit mean ARI = {nested.loc['stroke','real_mean_full_refit_subsample_ari']:.3f}.",
+        transform=ax2.transAxes, fontsize=8.7, color=TEXT, va="top", linespacing=1.35,
+    )
+
+    rounded(ax2, (0.04, 0.19), 0.92, 0.26, fc="#FDF0E4", ec="#F1C395")
+    ax2.text(
+        0.07, 0.39, "Sepsis: reproducible partition with null-like separation",
+        transform=ax2.transAxes, fontsize=10.0, fontweight="bold", color=ORANGE,
     )
     ax2.text(
-        0.05,
-        0.40,
-        "Sepsis",
-        transform=ax2.transAxes,
-        fontsize=11,
-        fontweight="bold",
-        color=ORANGE,
+        0.07, 0.32,
+        f"Observed {erow.real_silhouette:.3f} vs null mean {erow.null_silhouette_mean:.3f}; "
+        f"100/100 null replicates were at least as separated.\n"
+        f"Full-refit mean ARI = {nested.loc['sepsis','real_mean_full_refit_subsample_ari']:.3f}.",
+        transform=ax2.transAxes, fontsize=8.7, color=TEXT, va="top", linespacing=1.35,
     )
     ax2.text(
-        0.05,
-        0.29,
-        f"Observed {e.real_silhouette:.3f} vs null mean {e.null_silhouette_mean:.3f}\n"
-        "100/100 null replicates reached or exceeded the observed value.",
-        transform=ax2.transAxes,
-        fontsize=9.5,
-        color=TEXT,
-        linespacing=1.35,
-    )
-    ax2.text(
-        0.05,
-        0.08,
+        0.04, 0.07,
         "High clustering stability alone is not evidence of discrete latent structure.",
-        transform=ax2.transAxes,
-        fontsize=10,
-        fontweight="bold",
-        color=INK,
+        transform=ax2.transAxes, fontsize=9.2, fontweight="bold", color=INK,
     )
     return save(fig, outdir, "fig3_null_reference", pdf, dpi)
 
