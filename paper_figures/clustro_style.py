@@ -64,7 +64,7 @@ HEAT_CMAP = LinearSegmentedColormap.from_list(
     ["#2B5FA8", "#7CA8D4", "#C5D9EC", "#FFFFFF", "#F8CBB4", "#EE8A61", "#C2251B"],
 )
 
-FONT_SCALE = 1.48
+FONT_SCALE = 1.56
 
 
 def fs(size: float) -> float:
@@ -85,8 +85,8 @@ def use_style() -> None:
             "axes.labelcolor": TEXT,
             "xtick.color": MUTED,
             "ytick.color": MUTED,
-            "xtick.labelsize": 12.5,
-            "ytick.labelsize": 12.5,
+            "xtick.labelsize": 13.2,
+            "ytick.labelsize": 13.2,
             "text.color": TEXT,
             "axes.unicode_minus": False,
         }
@@ -253,13 +253,13 @@ def vline(ax, x, y1, y2, color=GRID, lw=1.0, z=2, ls="-"):
             solid_capstyle="butt")
 
 
-def figure_title(ax, x, y, s, size=17):
+def figure_title(ax, x, y, s, size=18):
     txt(ax, x, y, s, size=size, weight="bold", color=INK, va="center")
 
 
 def panel(ax, x, y, w, h, letter=None, title=None, subtitle=None,
-          fc="white", ec=BORDER, lw=1.1, r=0.14, title_size=13.5,
-          sub_size=9.5, letter_fc=FILL_GRAY, letter_color=INK, pad=0.28):
+          fc="white", ec=BORDER, lw=1.1, r=0.14, title_size=14.2,
+          sub_size=10.0, letter_fc=FILL_GRAY, letter_color=INK, pad=0.28):
     rbox(ax, x, y, w, h, fc=fc, ec=ec, lw=lw, r=r, z=1)
     cy = y + pad
     if letter is not None:
