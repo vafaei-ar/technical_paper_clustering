@@ -19,21 +19,53 @@ W, H = 15.0, 10.55
 PW = W - 0.80
 HALF = (PW - 0.36) / 2
 
-BAR_H = 0.60
+# --------------------------------------------------------------------------- #
+# USER-ADJUSTABLE DISPLAY SETTINGS
+# Edit these dictionaries first when tuning Figure 5.
+# --------------------------------------------------------------------------- #
+TEXT_SIZE = {
+    "figure_title": 18.0,
+    "subhead": 9.6,
+    "note_heading": 8.8,
+    "note_body": 8.3,
+    "bar_axis_label": 14.0,
+    "bar_value": 14.8,
+    "bar_label": 14.1,
+    "k_axis_label": 13.8,
+    "k_tick_label": 13.1,
+    "k_value_label": 13.3,
+    "cohort_legend": 9.4,
+}
+
+TEXT_POS = {
+    "figure_title": (0.42, 0.48),
+    "panel_a_origin": (0.40, 0.88),
+    "panel_b_origin": (0.40 + HALF + 0.36, 0.88),
+    "panel_c_origin": (0.40, 5.68),
+    "panel_d_origin": (0.40 + HALF + 0.36, 5.68),
+}
+
+STYLE = {
+    "bar_height": 0.60,
+}
+
+BAR_H = STYLE["bar_height"]
 
 
 def _subhead(ax, x, y, w, label, h=0.38):
     rbox(ax, x, y, w, h, fc="#E8F0F9", ec="none", r=0.07, z=2)
-    txt(ax, x + w / 2, y + h / 2, label, size=9.6, weight="bold", color=INK,
+    txt(ax, x + w / 2, y + h / 2, label, size=TEXT_SIZE["subhead"], weight="bold", color=INK,
         ha="center", z=5)
     return y + h
 
 
 def _note(ax, x, y, w, h, heading, body):
     rbox(ax, x, y, w, h, fc="#F2F7FC", ec="#D9E6F2", lw=0.9, r=0.10, z=2)
-    end = para(ax, x + 0.16, y + 0.14, heading, w - 0.32, size=8.8,
+    end = para(ax, x + 0.16, y + 0.14, heading, w - 0.32,
+               size=TEXT_SIZE["note_heading"],
                color=INK, weight="bold")
-    para(ax, x + 0.16, end + 0.12, body, w - 0.32, size=8.3, color=TEXT)
+    para(ax, x + 0.16, end + 0.12, body, w - 0.32,
+         size=TEXT_SIZE["note_body"], color=TEXT)
 
 
 def _bar_panel(fig, ax, x0, y0, w, h, letter, title, subtitle, header,
@@ -55,13 +87,13 @@ def _bar_panel(fig, ax, x0, y0, w, h, letter, title, subtitle, header,
     axb.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
     axb.set_ylim(len(items) - 0.5, -0.5)
     axb.set_yticks([])
-    axb.set_xlabel("ARI (1 = identical)", fontsize=14.0, color=TEXT, labelpad=5)
+    axb.set_xlabel("ARI (1 = identical)", fontsize=TEXT_SIZE["bar_axis_label"], color=TEXT, labelpad=5)
 
     for i, (label, value, color) in enumerate(items):
         axb.barh(i, value, height=BAR_H, color=color, zorder=4)
         axb.text(value + 0.022, i, f"{value:.3f}", va="center", ha="left",
-                 fontsize=14.8, color=TEXT, zorder=5)
-        axb.text(-0.028, i, label, va="center", ha="right", fontsize=14.1,
+                 fontsize=TEXT_SIZE["bar_value"], color=TEXT, zorder=5)
+        axb.text(-0.028, i, label, va="center", ha="right", fontsize=TEXT_SIZE["bar_label"],
                  color=TEXT, transform=axb.get_yaxis_transform(), zorder=5)
 
     if note:
@@ -71,7 +103,7 @@ def _bar_panel(fig, ax, x0, y0, w, h, letter, title, subtitle, header,
 
 
 def panel_a(fig, ax):
-    x0, y0, w, h = 0.40, 0.88, HALF, 4.60
+    x0, y0 = TEXT_POS["panel_a_origin"]\n    w, h = HALF, 4.60
     panel(ax, x0, y0, w, h, letter="A", title="$k$ sensitivity",
           subtitle="Cluster count changes the separation-stability tradeoff "
                    "differently in stroke and sepsis", sub_size=9.2)
@@ -95,10 +127,10 @@ def panel_a(fig, ax):
         axl.set_ylim(*ylim)
         axl.set_xticks(D.K_GRID)
         axl.set_yticks(yticks)
-        axl.set_xlabel("Number of clusters ($k$)", fontsize=13.8,
+        axl.set_xlabel("Number of clusters ($k$)", fontsize=TEXT_SIZE["k_axis_label"],
                        color=TEXT, labelpad=4)
-        axl.set_ylabel(ylab, fontsize=13.8, color=TEXT, labelpad=4)
-        axl.tick_params(labelsize=13.1)
+        axl.set_ylabel(ylab, fontsize=TEXT_SIZE["k_axis_label"], color=TEXT, labelpad=4)
+        axl.tick_params(labelsize=TEXT_SIZE["k_tick_label"])
 
         axl.axvspan(D.K_SELECTED - 0.28, D.K_SELECTED + 0.28,
                     color="#EAF2FA", zorder=1)
@@ -114,7 +146,7 @@ def panel_a(fig, ax):
                     else -0.075 * (ylim[1] - ylim[0])
                 axl.annotate(fmt % v, (k, v + off), ha="center",
                              va="bottom" if cohort == "Stroke" else "top",
-                             fontsize=13.3, color=color, weight="bold", zorder=6)
+                             fontsize=TEXT_SIZE["k_value_label"], color=color, weight="bold", zorder=6)
 
     ly = y0 + h - 0.16
     lx = x0 + (w - 4.90) / 2
@@ -123,7 +155,7 @@ def panel_a(fig, ax):
         ax.plot([lx, lx + 0.46], [ly, ly], color=color, lw=1.8, zorder=4)
         ax.plot([lx + 0.23], [ly], marker="o", ms=6.5, color=color,
                 markeredgecolor="white", markeredgewidth=0.8, zorder=5)
-        txt(ax, lx + 0.60, ly, f"{cohort} ($n$ = {n:,})", size=9.4,
+        txt(ax, lx + 0.60, ly, f"{cohort} ($n$ = {n:,})", size=TEXT_SIZE["cohort_legend"],
             color=TEXT, va="center")
         lx += 2.55
 
@@ -131,15 +163,18 @@ def panel_a(fig, ax):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
+    title_x, title_y = TEXT_POS["figure_title"]
     figure_title(
-        ax, 0.42, 0.48,
-        "Figure 5. Robustness differs across clustering specifications"
+        ax, title_x, title_y,
+        "Figure 5. Robustness differs across clustering specifications",
+        size=TEXT_SIZE["figure_title"],
     )
 
     panel_a(fig, ax)
 
+    panel_b_x, panel_b_y = TEXT_POS["panel_b_origin"]
     _bar_panel(
-        fig, ax, 0.40 + HALF + 0.36, 0.88, HALF, 4.60,
+        fig, ax, panel_b_x, panel_b_y, HALF, 4.60,
         "B", "Representation sensitivity",
         "Raw features vs. PCA give near-identical solutions",
         "ARI vs. primary PCA $k$ = 3 solution",
@@ -149,8 +184,9 @@ def build(outdir="."):
               "Raw features give nearly identical assignments in both cohorts."),
     )
 
+    panel_c_x, panel_c_y = TEXT_POS["panel_c_origin"]
     _bar_panel(
-        fig, ax, 0.40, 5.68, HALF, 4.60,
+        fig, ax, panel_c_x, panel_c_y, HALF, 4.60,
         "C", "Balanced-block weighting",
         "Moderate effect in stroke, substantial in sepsis",
         "ARI vs. primary (unweighted) solution",
@@ -161,8 +197,9 @@ def build(outdir="."):
               "is less affected."),
     )
 
+    panel_d_x, panel_d_y = TEXT_POS["panel_d_origin"]
     _bar_panel(
-        fig, ax, 0.40 + HALF + 0.36, 5.68, HALF, 4.60,
+        fig, ax, panel_d_x, panel_d_y, HALF, 4.60,
         "D", "WBC redundancy sensitivity in sepsis",
         "Sepsis is sensitive to WBC feature coding",
         "ARI vs. primary sepsis solution ($k$ = 3)",
