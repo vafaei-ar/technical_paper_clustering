@@ -49,12 +49,18 @@ def _scatter_panel(fig, ax_c, x0, y0, w, h, letter, title, candidates, selected,
     ax.set_ylabel("Mean full-refit subsample ARI", fontsize=15.6, color=TEXT,
                   labelpad=6)
 
+    annotated_xy = [ann["xy"] for ann in annotations]
     for fam, k, sil, ari in candidates:
         ax.scatter(sil, ari, marker=FAMILY_MARKER[fam], s=95,
                    color=K_COLOR[k], edgecolors="white", linewidths=0.6,
                    zorder=6)
-        ax.annotate(f"$k$ = {k}", (sil, ari), textcoords="offset points",
-                    xytext=(11, -9), fontsize=13.3, color=TEXT, zorder=7)
+        has_callout = any(
+            abs(sil - xy[0]) < 1e-10 and abs(ari - xy[1]) < 1e-10
+            for xy in annotated_xy
+        )
+        if not has_callout:
+            ax.annotate(f"$k$ = {k}", (sil, ari), textcoords="offset points",
+                        xytext=(11, -9), fontsize=13.3, color=TEXT, zorder=7)
 
     sel = [c for c in candidates if (c[0], c[1]) == selected][0]
     ax.scatter(sel[2], sel[3], marker="*", s=420, color="#E23B3B",
@@ -176,16 +182,16 @@ def build(outdir="."):
         xticks=[0.12, 0.14, 0.16, 0.18, 0.20, 0.22],
         yticks=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
         annotations=[
-            dict(xy=s4, xytext=(0.1325, 0.835),
+            dict(xy=s4, xytext=(0.1305, 0.760),
                  lines=["$k$ = 4", "(higher stability)"], fc=FILL_GREEN,
                  ec="#9AD3B7", tc="#1B7A50"),
-            dict(xy=s3, xytext=(0.1605, 0.735),
+            dict(xy=s3, xytext=(0.1585, 0.625),
                  lines=["Selected $k$ = 3", "(best compromise)"], fc=FILL_RED,
                  ec=EDGE_RED, tc=RED),
-            dict(xy=s2, xytext=(0.2005, 0.835),
+            dict(xy=s2, xytext=(0.2030, 0.760),
                  lines=["$k$ = 2", "(higher separation)"], fc=FILL_GREEN,
                  ec="#9AD3B7", tc="#1B7A50"),
-            dict(xy=sa2, xytext=(0.220, 0.365),
+            dict(xy=sa2, xytext=(0.227, 0.360),
                  lines=["Agglomerative", "(low stability)"], fc=FILL_BLUE,
                  ec=EDGE_BLUE, tc=BLUE_DK),
         ],
@@ -203,13 +209,13 @@ def build(outdir="."):
                 0.1750, 0.1775],
         yticks=[0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96, 0.98],
         annotations=[
-            dict(xy=e3, xytext=(0.1655, 0.930),
+            dict(xy=e3, xytext=(0.1653, 0.910),
                  lines=["Selected $k$ = 3", "(best compromise)"], fc=FILL_RED,
                  ec=EDGE_RED, tc=RED),
-            dict(xy=e4, xytext=(0.1760, 0.900),
+            dict(xy=e4, xytext=(0.1762, 0.885),
                  lines=["$k$ = 4", "(higher separation,", "lower robustness)"],
                  fc=FILL_ORANGE, ec=EDGE_ORANGE, tc=ORANGE_DK),
-            dict(xy=e2, xytext=(0.1635, 0.842),
+            dict(xy=e2, xytext=(0.1638, 0.840),
                  lines=["$k$ = 2", "(lower stability)"], fc=FILL_ORANGE,
                  ec=EDGE_ORANGE, tc=ORANGE_DK),
         ],
