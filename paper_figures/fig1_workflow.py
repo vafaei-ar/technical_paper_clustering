@@ -18,28 +18,28 @@ HALF = (PW - 0.36) / 2
 
 
 def _card_header(ax, x, y, w, num, title, title_w):
-    hh = max(0.60, text_height(title, title_w, 8.0, leading=1.24) + 0.20)
+    hh = max(0.60, text_height(title, title_w, 8.4, leading=1.24) + 0.20)
     rbox(ax, x, y, w, hh, fc=FILL_HEAD, ec="none", r=0.09, z=2)
     ax.add_patch(Circle((x + 0.23, y + 0.22), 0.125, facecolor="#5C86AE",
                         edgecolor="none", zorder=4))
     txt(ax, x + 0.23, y + 0.225, str(num), size=7.6, color="white",
         weight="bold", ha="center", va="center", z=5)
-    para(ax, x + 0.44, y + (hh - text_height(title, title_w, 8.0, 1.24)) / 2,
-         title, title_w, size=8.0, color=INK, weight="bold", leading=1.24)
+    para(ax, x + 0.44, y + (hh - text_height(title, title_w, 8.4, 1.24)) / 2,
+         title, title_w, size=8.4, color=INK, weight="bold", leading=1.24)
     return y + hh + 0.10
 
 
 def _mini(ax, x, y, w, h, label, sub=None, draw=None, fc="white"):
     rbox(ax, x, y, w, h, fc=fc, ec=EDGE_GRAY, lw=0.8, r=0.07, z=3)
-    txt(ax, x + w / 2, y + 0.145, label, size=7.0, weight="bold", color=INK,
+    txt(ax, x + w / 2, y + 0.145, label, size=7.5, weight="bold", color=INK,
         ha="center", z=5)
     if sub:
-        txt(ax, x + w / 2, y + 0.305, sub, size=6.0, color=MUTED, ha="center", z=5)
+        txt(ax, x + w / 2, y + 0.305, sub, size=6.5, color=MUTED, ha="center", z=5)
     if draw:
         draw(ax, x + w / 2, y + h * 0.66, min(w, h * 1.15) * 0.92)
 
 
-def _row_item(ax, x, y, w, icon, text_, size=7.2, icon_color=BLUE, icon_s=0.22):
+def _row_item(ax, x, y, w, icon, text_, size=7.6, icon_color=BLUE, icon_s=0.22):
     icon(ax, x + 0.13, y + 0.14, icon_s, icon_color)
     end = para(ax, x + 0.30, y, text_, w - 0.32, size=size, color=TEXT, leading=1.25)
     return max(end, y + 0.30) + 0.09
@@ -72,7 +72,7 @@ def panel_a(fig, ax):
         rbox(ax, x + 0.14, yy, cw - 0.28, 0.78, fc=fill, ec=edge, lw=0.8, r=0.08, z=3)
         ico_people(ax, x + 0.45, yy + 0.34, 0.23, col)
         txt(ax, x + 0.72, yy + 0.24, name, size=8.2, weight="bold", color=col, z=5)
-        txt(ax, x + 0.72, yy + 0.48, f"(n = {nn:,})", size=7.2, color=col, z=5)
+        txt(ax, x + 0.72, yy + 0.48, f"(n = {nn:,})", size=7.6, color=col, z=5)
         yy += 0.92
     txt(ax, x + cw / 2, cy + ch - 0.44, "Real-world", size=7.0, color=MUTED,
         ha="center", style="italic", z=5)
@@ -105,12 +105,12 @@ def panel_a(fig, ax):
     ico_sheets(ax, x + cw / 2, yy + 0.40, 0.66)
     yy += 0.92
     yy = para(ax, x + cw / 2, yy, "80% subsamples, full preprocessing refit",
-              cw - 0.36, size=7.2, color=TEXT, ha="center", leading=1.3)
+              cw - 0.36, size=7.6, color=TEXT, ha="center", leading=1.3)
     yy += 0.26
     ico_refresh(ax, x + cw / 2, yy + 0.18, 0.32, "#4C6B8A")
     yy += 0.46
     para(ax, x + cw / 2, yy, "Repeat x 50 iterations",
-         cw - 0.36, size=7.2, color=TEXT, ha="center", leading=1.3)
+         cw - 0.36, size=7.6, color=TEXT, ha="center", leading=1.3)
 
     x = xs[4]
     yy = _card_header(ax, x, cy, cw, 5, "Evaluation metrics", tw) + 0.10
@@ -142,7 +142,7 @@ def panel_a(fig, ax):
         "Phenotype characterization",
         "Robustness and sensitivity",
         "Reproducible code and outputs",
-    ], cw - 0.22, size=7.0)
+    ], cw - 0.22, size=7.5)
 
 
 PANEL_BC = dict(y0=5.74, h=5.80)
@@ -245,7 +245,7 @@ def panel_c(fig, ax):
         ha="center", z=5)
     for x, label in zip(col_x, ("High (better than null)",
                                 "Null-like (no better than null)")):
-        txt(ax, x + cw / 2, y0 + 1.40, label, size=8.6, weight="bold",
+        txt(ax, x + cw / 2, y0 + 1.40, label, size=9.0, weight="bold",
             color=TEXT, ha="center", z=5)
 
     row_y = [y0 + 1.60, y0 + 3.30]
@@ -257,9 +257,9 @@ def panel_c(fig, ax):
 
     for y, hh, top, bot in zip(row_y, row_h, ("High", "Low"),
                                ("(stable)", "(unstable)")):
-        txt(ax, x0 + 1.06, y + hh / 2 - 0.11, top, size=8.6, weight="bold",
+        txt(ax, x0 + 1.06, y + hh / 2 - 0.11, top, size=9.0, weight="bold",
             color=TEXT, ha="center", z=5)
-        txt(ax, x0 + 1.06, y + hh / 2 + 0.11, bot, size=7.6, color=MUTED,
+        txt(ax, x0 + 1.06, y + hh / 2 + 0.11, bot, size=8.1, color=MUTED,
             ha="center", z=5)
 
     cells = [
