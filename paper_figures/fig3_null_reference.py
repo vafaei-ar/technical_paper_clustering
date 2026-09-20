@@ -119,30 +119,30 @@ def panel_c(fig, ax):
          fc="#DCEAF7", ec="none", r=0.07, z=2)
     txt(ax, grid_x + grid_w / 2, y0 + 1.00,
         "Cluster separation (vs. null reference)",
-        size=10.0, color=INK, ha="center", z=5)
+        size=12.5, color=INK, ha="center", z=5)
 
     for x, label in zip(
         col_x,
         ("High (better than null)", "Null-like (no better than null)")
     ):
         txt(ax, x + cw / 2, y0 + 1.28, label,
-            size=9.3, weight="bold", color=TEXT, ha="center", z=5)
+            size=11.5, weight="bold", color=TEXT, ha="center", z=5)
 
     ax.text(
         x0 + 0.78,
         (row_y[0] + row_y[1] + row_h[1]) / 2,
         "Reproducibility\n(full-refit stability)",
         rotation=90, ha="center", va="center",
-        size=9.6, color=TEXT, zorder=5, linespacing=1.35
+        size=11.5, color=TEXT, zorder=5, linespacing=1.35
     )
 
     for y, hh, top, bot in zip(
         row_y, row_h, ("Higher", "Lower"), ("(more stable)", "(less stable)")
     ):
         txt(ax, x0 + 1.56, y + hh / 2 - 0.12, top,
-            size=9.2, weight="bold", color=TEXT, ha="right", z=5)
+            size=11.0, weight="bold", color=TEXT, ha="right", z=5)
         txt(ax, x0 + 1.56, y + hh / 2 + 0.13, bot,
-            size=8.3, color=MUTED, ha="right", z=5)
+            size=10.0, color=MUTED, ha="right", z=5)
 
     cells = [
         (0, 0, "Promising", "Higher than null\nand stable",
@@ -162,24 +162,24 @@ def panel_c(fig, ax):
         rbox(ax, x, y, cw, hh, fc=fill, ec=edge,
              lw=1.4 if r_ == 0 else 1.0, r=0.11, z=2)
         txt(ax, x + cw / 2, y + 0.34, title,
-            size=13.5, weight="bold", color=col, ha="center", z=5)
+            size=17.0, weight="bold", color=col, ha="center", z=5)
         ax.text(x + cw / 2, y + 0.78, sub,
-                ha="center", va="center", size=9.3,
+                ha="center", va="center", size=12.0,
                 color=TEXT, linespacing=1.35, zorder=5)
         if marker:
             label, mcol = marker
             ax.add_patch(Circle((x + cw / 2 - 0.52, y + hh - 0.30),
                                 0.13, facecolor=mcol, edgecolor="none", zorder=5))
             txt(ax, x + cw / 2 - 0.30, y + hh - 0.30, label,
-                size=10.4, weight="bold", color=mcol, z=5)
+                size=13.0, weight="bold", color=mcol, z=5)
 
     txt(ax, grid_x, y0 + h - 0.36, "Higher than null",
-        size=8.8, weight="bold", color=TEXT, ha="left")
+        size=10.5, weight="bold", color=TEXT, ha="left")
     txt(ax, grid_x + grid_w, y0 + h - 0.36, "Null-like",
-        size=8.8, weight="bold", color=TEXT, ha="right")
+        size=10.5, weight="bold", color=TEXT, ha="right")
     txt(ax, grid_x + grid_w / 2, y0 + h - 0.10,
         "Separation vs. null reference",
-        size=10.0, weight="bold", color=INK, ha="center")
+        size=12.5, weight="bold", color=INK, ha="center")
 
 
 def build(outdir="."):
