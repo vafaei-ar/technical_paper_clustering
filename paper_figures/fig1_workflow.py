@@ -83,14 +83,17 @@ def _mini(ax, x, y, w, h, label, sub=None, draw=None, fc="white"):
         draw(ax, x + w / 2, y + h * 0.66, min(w, h * 1.15) * 0.92)
 
 
-def _row_item(ax, x, y, w, icon, text_, size=None, icon_color=BLUE, icon_s=0.22):\n    if size is None:\n        size = TEXT_SIZE["row_item"]
+def _row_item(ax, x, y, w, icon, text_, size=None, icon_color=BLUE, icon_s=0.22):
+    if size is None:
+        size = TEXT_SIZE["row_item"]
     icon(ax, x + 0.13, y + 0.14, icon_s, icon_color)
     end = para(ax, x + 0.30, y, text_, w - 0.32, size=size, color=TEXT, leading=1.25)
     return max(end, y + 0.30) + 0.09
 
 
 def panel_a(fig, ax):
-    x0, y0 = TEXT_POS["panel_a_origin"]\n    w, h = PW, 4.62
+    x0, y0 = TEXT_POS["panel_a_origin"]
+    w, h = PW, 4.62
     panel(ax, x0, y0, w, h, letter="A", title="End-to-end workflow")
 
     n = 7
@@ -279,7 +282,8 @@ def panel_c(fig, ax):
     w = HALF
     panel(ax, x0, y0, w, h, letter="C", title="Decision logic")
 
-    grid_x = x0 + TEXT_POS["decision_grid_x_offset"]\n    grid_w = w - TEXT_POS["decision_grid_x_offset"] - 0.32
+    grid_x = x0 + TEXT_POS["decision_grid_x_offset"]
+    grid_w = w - TEXT_POS["decision_grid_x_offset"] - 0.32
     cw = (grid_w - 0.20) / 2
     col_x = [grid_x, grid_x + cw + 0.20]
 
@@ -342,7 +346,9 @@ def panel_c(fig, ax):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
-    title_x, title_y = TEXT_POS["figure_title"]\n    figure_title(ax, title_x, title_y, "Figure 1. Clustro workflow and decision logic",\n                 size=TEXT_SIZE["figure_title"])
+    title_x, title_y = TEXT_POS["figure_title"]
+    figure_title(ax, title_x, title_y, "Figure 1. Clustro workflow and decision logic",
+                 size=TEXT_SIZE["figure_title"])
     panel_a(fig, ax)
     panel_b(fig, ax)
     panel_c(fig, ax)
