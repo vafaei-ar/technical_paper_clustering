@@ -15,7 +15,7 @@ import numpy as np
 from clustro_style import *
 import clustro_data as D
 
-W, H = 15.0, 11.30
+W, H = 15.0, 10.55
 PW = W - 0.80
 HALF = (PW - 0.36) / 2
 
@@ -128,23 +128,6 @@ def panel_a(fig, ax):
         lx += 2.55
 
 
-def takeaway(ax):
-    x0, y0, w, h = 0.40, 10.42, PW, 0.76
-    rbox(ax, x0, y0, w, h, fc="#F2F7FC", ec="#D9E6F2",
-         lw=1.0, r=0.12, z=1)
-    ico_bars(ax, x0 + 0.62, y0 + h / 2, 0.34, "#2E6FA8")
-    txt(ax, x0 + 1.05, y0 + h / 2, "Takeaway", size=13,
-        weight="bold", color=INK, va="center")
-    vline(ax, x0 + 2.30, y0 + 0.14, y0 + h - 0.14,
-          color="#C3D5E6", lw=1.2)
-    txt(ax, x0 + 2.55, y0 + 0.24,
-        "Stroke remains comparatively stable, whereas sepsis changes substantially",
-        size=11.5, weight="bold", color=INK, va="center")
-    txt(ax, x0 + 2.55, y0 + 0.50,
-        "under reasonable alternative specifications.",
-        size=11.5, weight="bold", color=INK, va="center")
-
-
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
@@ -190,7 +173,6 @@ def build(outdir="."):
         ylabel_w=1.55,
     )
 
-    takeaway(ax)
     return save(fig, os.path.join(outdir, "fig5_robustness.png"))
 
 
