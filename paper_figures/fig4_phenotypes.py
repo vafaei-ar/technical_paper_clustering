@@ -19,6 +19,37 @@ W, H = 15.0, 11.45
 PW = W - 0.80
 HALF = (PW - 0.36) / 2
 
+# --------------------------------------------------------------------------- #
+# USER-ADJUSTABLE DISPLAY SETTINGS
+# Edit these dictionaries first when tuning Figure 4.
+# --------------------------------------------------------------------------- #
+TEXT_SIZE = {
+    "figure_title": 16.5,
+    "row_label": 8.6,
+    "cluster_header": 8.8,
+    "cluster_header_small": 7.8,
+    "cluster_n": 8.0,
+    "group_label": 7.0,
+    "summary_title": 9.0,
+    "summary_n": 8.4,
+    "summary_bullets": 7.8,
+    "colorbar_ticks": 12.5,
+    "colorbar_side": 8.6,
+    "colorbar_caption": 8.2,
+}
+
+TEXT_POS = {
+    "figure_title": (0.42, 0.48),
+    "colorbar_y": 10.56,
+}
+
+STYLE = {
+    "label_cell_edge": "#AEB9C5",
+    "label_cell_lw": 0.8,
+    "heat_cell_edge": "#4A5563",
+    "heat_cell_lw": 0.70,
+}
+
 NORM = Normalize(-D.HEAT_VMAX, D.HEAT_VMAX)
 
 HEADER_STYLE = {
@@ -76,7 +107,7 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
 
     head_y, head_h = y0 + 1.14, 0.84
     rows = [(rl, vals) for _, _, rr in groups for rl, vals in rr]
-    lab_size = 8.6
+    lab_size = TEXT_SIZE["row_label"]
     widest = max(measure(fig, rl, lab_size) for rl, _ in rows)
     if widest > lab_w - 0.22:
         lab_size = max(7.0, lab_size * (lab_w - 0.22) / widest)
@@ -89,20 +120,20 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
         hx = grid_x + j * cw
         rbox(ax, hx + 0.03, head_y, cw - 0.06, head_h, fc=fill, ec=edge,
              lw=0.9, r=0.08, z=2)
-        fsize = 8.8
+        fsize = TEXT_SIZE["cluster_header"]
         lines = textwrap.wrap(name.replace("\n", " "),
                               chars_for(cw - 0.20, fsize))
         if len(lines) > 2:
-            fsize = 7.8
+            fsize = TEXT_SIZE["cluster_header_small"]
             lines = textwrap.wrap(name.replace("\n", " "),
                                   chars_for(cw - 0.14, fsize))
-        step = 0.185 * fsize / 8.8
+        step = 0.185 * fsize / TEXT_SIZE["cluster_header"]
         ty = head_y + (head_h - (len(lines) + 1) * step) / 2 + 0.10
         for line in lines:
             txt(ax, hx + cw / 2, ty, line, size=fsize, weight="bold", color=tc,
                 ha="center", z=5)
             ty += step
-        txt(ax, hx + cw / 2, ty, f"(n = {n:,})", size=8.0, color=tc,
+        txt(ax, hx + cw / 2, ty, f"(n = {n:,})", size=TEXT_SIZE["cluster_n"], color=tc,
             ha="center", z=5)
 
     r_i = 0
@@ -119,23 +150,23 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
         glines = [
             ln
             for raw in gname.split("\n")
-            for ln in textwrap.wrap(raw, chars_for(ico_w - 0.08, fs(7.0)))
+            for ln in textwrap.wrap(raw, chars_for(ico_w - 0.08, fs(TEXT_SIZE["group_label"])))
         ]
         ty = gy + gh / 2 + 0.06 - 0.075 * (len(glines) - 2)
         for line in glines:
-            txt(ax, x0 + 0.30 + ico_w / 2, ty, line, size=7.0,
+            txt(ax, x0 + 0.30 + ico_w / 2, ty, line, size=TEXT_SIZE["group_label"],
                 color="#3F5468", ha="center", weight="bold", z=5)
             ty += 0.155
 
         for rl, vals in grows:
             ry = body_y + r_i * rh
             sbox(ax, x0 + 0.30 + ico_w + 0.04, ry, lab_w - 0.08, rh,
-                 fc="white", ec="#E6ECF2", lw=0.7, z=2)
+                 fc="white", ec=STYLE["label_cell_edge"], lw=STYLE["label_cell_lw"], z=2)
             txt(ax, x0 + 0.30 + ico_w + 0.12, ry + rh / 2, rl,
                 size=lab_size, color=TEXT, z=5)
             for j, v in enumerate(vals):
                 sbox(ax, grid_x + j * cw, ry, cw, rh,
-                     fc=HEAT_CMAP(NORM(v)), ec="#4A5563", lw=0.70, z=2)
+                     fc=HEAT_CMAP(NORM(v)), ec=STYLE["heat_cell_edge"], lw=STYLE["heat_cell_lw"], z=2)
             r_i += 1
 
     sy = body_y + body_h + 0.22
@@ -148,8 +179,8 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
         rbox(ax, sx, sy, sw, 0.66, fc=fill, ec="none", r=0.10, z=3)
         sbox(ax, sx, sy + 0.48, sw, 0.18, fc=fill, ec="none", z=3)
         txt(ax, sx + sw / 2, sy + 0.21, name.replace("\n", " "),
-            size=9.0, weight="bold", color=tc, ha="center", z=5)
-        txt(ax, sx + sw / 2, sy + 0.44, f"(n = {n:,})", size=8.4,
+            size=TEXT_SIZE["summary_title"], weight="bold", color=tc, ha="center", z=5)
+        txt(ax, sx + sw / 2, sy + 0.44, f"(n = {n:,})", size=TEXT_SIZE["summary_n"],
             color=tc, ha="center", z=5)
         ic = {
             "people": ico_people,
@@ -159,7 +190,7 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
             "blood": ico_blood_cell,
         }[icon_key]
         ic(ax, sx + 0.36, sy + 0.96, 0.32, tc)
-        bullets(ax, sx + 0.16, sy + 1.18, items, sw - 0.34, size=7.8,
+        bullets(ax, sx + 0.16, sy + 1.18, items, sw - 0.34, size=TEXT_SIZE["summary_bullets"],
                 color=TEXT, dot_color=tc, leading=1.28, gap=0.035)
 
 
@@ -178,22 +209,22 @@ def colorbar(fig, ax, y):
     cax.set_yticks([])
     ticks = [t for t in (-2, -1, 0, 1, 2) if abs(t) <= D.HEAT_VMAX]
     cax.set_xticks(ticks)
-    cax.tick_params(length=3, labelsize=12.5, colors=MUTED, pad=3)
+    cax.tick_params(length=3, labelsize=TEXT_SIZE["colorbar_ticks"], colors=MUTED, pad=3)
     for sp in cax.spines.values():
         sp.set_color("#C3CEDA")
         sp.set_linewidth(0.8)
 
-    txt(ax, cx - 0.22, y + ch / 2, "Lower than cohort reference", size=8.6,
+    txt(ax, cx - 0.22, y + ch / 2, "Lower than cohort reference", size=TEXT_SIZE["colorbar_side"],
         color=TEXT, ha="right")
     txt(ax, cx + cw + 0.22, y + ch / 2, "Higher than cohort reference",
-        size=8.6, color=TEXT, ha="left")
+        size=TEXT_SIZE["colorbar_side"], color=TEXT, ha="left")
     txt(
         ax,
         W / 2,
         y + ch + 0.50,
         "Standardized feature contrast: continuous = median difference/IQR; "
         "binary = standardized prevalence difference",
-        size=8.2,
+        size=TEXT_SIZE["colorbar_caption"],
         color=MUTED,
         ha="center",
     )
@@ -202,12 +233,13 @@ def colorbar(fig, ax, y):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
+    title_x, title_y = TEXT_POS["figure_title"]
     figure_title(
         ax,
-        0.42,
-        0.48,
+        title_x,
+        title_y,
         "Figure 4. Selected phenotypes reveal distinct profiles in stroke and sepsis",
-        size=16.5,
+        size=TEXT_SIZE["figure_title"],
     )
 
     _heat_panel(
@@ -221,7 +253,7 @@ def build(outdir="."):
         D.SEPSIS_CLUSTERS, D.SEPSIS_ROWS, SUMMARY["Sepsis"],
     )
 
-    colorbar(fig, ax, 10.56)
+    colorbar(fig, ax, TEXT_POS["colorbar_y"])
     return save(fig, os.path.join(outdir, "fig4_phenotypes.png"))
 
 
