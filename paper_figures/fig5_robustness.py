@@ -103,7 +103,8 @@ def _bar_panel(fig, ax, x0, y0, w, h, letter, title, subtitle, header,
 
 
 def panel_a(fig, ax):
-    x0, y0 = TEXT_POS["panel_a_origin"]\n    w, h = HALF, 4.60
+    x0, y0 = TEXT_POS["panel_a_origin"]
+    w, h = HALF, 4.60
     panel(ax, x0, y0, w, h, letter="A", title="$k$ sensitivity",
           subtitle="Cluster count changes the separation-stability tradeoff "
                    "differently in stroke and sepsis", sub_size=9.2)
