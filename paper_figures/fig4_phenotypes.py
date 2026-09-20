@@ -135,7 +135,7 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
                 size=lab_size, color=TEXT, z=5)
             for j, v in enumerate(vals):
                 sbox(ax, grid_x + j * cw, ry, cw, rh,
-                     fc=HEAT_CMAP(NORM(v)), ec="white", lw=0.8, z=2)
+                     fc=HEAT_CMAP(NORM(v)), ec="#4A5563", lw=0.70, z=2)
             r_i += 1
 
     sy = body_y + body_h + 0.22
