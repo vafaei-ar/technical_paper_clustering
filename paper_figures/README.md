@@ -44,3 +44,34 @@ The figure code reads the existing analysis outputs rather than synthetic placeh
 - balanced-block, representation, and WBC-redundancy sensitivity: `results/methods_revision_reporting/`
 
 Figure 3 smooths the **actual 100 null replicate silhouettes** with a simple Gaussian-kernel density for display. Figure 4 reads the actual continuous and binary cluster-profile effect tables.
+
+
+## Easy manual tuning
+
+Each figure script now has a **USER-ADJUSTABLE DISPLAY SETTINGS** block near the top.
+
+Use these first instead of searching through the plotting code:
+
+- `TEXT_SIZE`: per-figure font sizes.
+- `TEXT_POS`: title, callout, label, and panel positions.
+- `SHOW`: optional visual elements that can be turned on/off where applicable.
+- `STYLE`: figure-specific visual styling such as heatmap borders or bar height.
+
+Examples:
+
+```python
+# Figure 2
+TEXT_POS["stroke_selected_box"] = (0.1585, 0.625)
+TEXT_SIZE["callout"] = 11.5
+SHOW["sepsis_selected_callout"] = True
+
+# Figure 3
+TEXT_SIZE["decision_cell_title"] = 17.0
+TEXT_POS["decision_grid_x_offset"] = 2.05
+
+# Figure 4
+STYLE["heat_cell_edge"] = "#4A5563"
+STYLE["heat_cell_lw"] = 0.70
+```
+
+The shared `clustro_style.py` file still contains `FONT_SCALE`, which scales text across the whole figure set.
