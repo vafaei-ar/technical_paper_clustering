@@ -16,37 +16,81 @@ W, H = 15.0, 11.70
 PW = W - 0.80
 HALF = (PW - 0.36) / 2
 
+# --------------------------------------------------------------------------- #
+# USER-ADJUSTABLE DISPLAY SETTINGS
+# Change these values first when tuning Figure 1.
+# TEXT_SIZE values are nominal point sizes and are also scaled by
+# clustro_style.FONT_SCALE.
+# TEXT_POS values use the figure's inch-based top-left coordinate system.
+# --------------------------------------------------------------------------- #
+TEXT_SIZE = {
+    "figure_title": 18.0,
+    "card_number": 7.6,
+    "card_title": 8.4,
+    "mini_label": 7.5,
+    "mini_sub": 6.5,
+    "row_item": 7.6,
+    "cohort_name": 8.2,
+    "cohort_n": 7.6,
+    "cohort_note": 7.0,
+    "subsample_text": 7.6,
+    "checklist": 7.5,
+    "panel_b_header": 11.0,
+    "panel_b_body": 8.6,
+    "panel_b_note": 8.2,
+    "decision_header": 9.0,
+    "decision_col_header": 9.0,
+    "decision_axis": 8.6,
+    "decision_axis_main": 9.0,
+    "decision_axis_small": 8.1,
+    "decision_cell_title": 11.5,
+    "decision_bullets": 8.0,
+    "decision_cohort_note": 8.6,
+}
+
+TEXT_POS = {
+    "figure_title": (0.42, 0.50),
+    "panel_a_origin": (0.40, 0.92),
+    "panel_bc_y": 5.74,
+    "panel_bc_h": 5.80,
+    "decision_grid_x_offset": 1.40,
+    "decision_top_header_y_offset": 1.01,
+    "decision_col_header_y_offset": 1.40,
+    "decision_vertical_axis_x_offset": 0.56,
+    "decision_side_label_x_offset": 1.06,
+}
+
 
 def _card_header(ax, x, y, w, num, title, title_w):
-    hh = max(0.60, text_height(title, title_w, 8.4, leading=1.24) + 0.20)
+    hh = max(0.60, text_height(title, title_w, TEXT_SIZE["card_title"], leading=1.24) + 0.20)
     rbox(ax, x, y, w, hh, fc=FILL_HEAD, ec="none", r=0.09, z=2)
     ax.add_patch(Circle((x + 0.23, y + 0.22), 0.125, facecolor="#5C86AE",
                         edgecolor="none", zorder=4))
-    txt(ax, x + 0.23, y + 0.225, str(num), size=7.6, color="white",
+    txt(ax, x + 0.23, y + 0.225, str(num), size=TEXT_SIZE["card_number"], color="white",
         weight="bold", ha="center", va="center", z=5)
-    para(ax, x + 0.44, y + (hh - text_height(title, title_w, 8.4, 1.24)) / 2,
-         title, title_w, size=8.4, color=INK, weight="bold", leading=1.24)
+    para(ax, x + 0.44, y + (hh - text_height(title, title_w, TEXT_SIZE["card_title"], 1.24)) / 2,
+         title, title_w, size=TEXT_SIZE["card_title"], color=INK, weight="bold", leading=1.24)
     return y + hh + 0.10
 
 
 def _mini(ax, x, y, w, h, label, sub=None, draw=None, fc="white"):
     rbox(ax, x, y, w, h, fc=fc, ec=EDGE_GRAY, lw=0.8, r=0.07, z=3)
-    txt(ax, x + w / 2, y + 0.145, label, size=7.5, weight="bold", color=INK,
+    txt(ax, x + w / 2, y + 0.145, label, size=TEXT_SIZE["mini_label"], weight="bold", color=INK,
         ha="center", z=5)
     if sub:
-        txt(ax, x + w / 2, y + 0.305, sub, size=6.5, color=MUTED, ha="center", z=5)
+        txt(ax, x + w / 2, y + 0.305, sub, size=TEXT_SIZE["mini_sub"], color=MUTED, ha="center", z=5)
     if draw:
         draw(ax, x + w / 2, y + h * 0.66, min(w, h * 1.15) * 0.92)
 
 
-def _row_item(ax, x, y, w, icon, text_, size=7.6, icon_color=BLUE, icon_s=0.22):
+def _row_item(ax, x, y, w, icon, text_, size=None, icon_color=BLUE, icon_s=0.22):\n    if size is None:\n        size = TEXT_SIZE["row_item"]
     icon(ax, x + 0.13, y + 0.14, icon_s, icon_color)
     end = para(ax, x + 0.30, y, text_, w - 0.32, size=size, color=TEXT, leading=1.25)
     return max(end, y + 0.30) + 0.09
 
 
 def panel_a(fig, ax):
-    x0, y0, w, h = 0.40, 0.92, PW, 4.62
+    x0, y0 = TEXT_POS["panel_a_origin"]\n    w, h = PW, 4.62
     panel(ax, x0, y0, w, h, letter="A", title="End-to-end workflow")
 
     n = 7
@@ -71,12 +115,12 @@ def panel_a(fig, ax):
     ):
         rbox(ax, x + 0.14, yy, cw - 0.28, 0.78, fc=fill, ec=edge, lw=0.8, r=0.08, z=3)
         ico_people(ax, x + 0.45, yy + 0.34, 0.23, col)
-        txt(ax, x + 0.72, yy + 0.24, name, size=8.2, weight="bold", color=col, z=5)
-        txt(ax, x + 0.72, yy + 0.48, f"(n = {nn:,})", size=7.6, color=col, z=5)
+        txt(ax, x + 0.72, yy + 0.24, name, size=TEXT_SIZE["cohort_name"], weight="bold", color=col, z=5)
+        txt(ax, x + 0.72, yy + 0.48, f"(n = {nn:,})", size=TEXT_SIZE["cohort_n"], color=col, z=5)
         yy += 0.92
-    txt(ax, x + cw / 2, cy + ch - 0.44, "Real-world", size=7.0, color=MUTED,
+    txt(ax, x + cw / 2, cy + ch - 0.44, "Real-world", size=TEXT_SIZE["cohort_note"], color=MUTED,
         ha="center", style="italic", z=5)
-    txt(ax, x + cw / 2, cy + ch - 0.22, "EHR cohorts", size=7.0, color=MUTED,
+    txt(ax, x + cw / 2, cy + ch - 0.22, "EHR cohorts", size=TEXT_SIZE["cohort_note"], color=MUTED,
         ha="center", style="italic", z=5)
 
     x = xs[1]
@@ -105,12 +149,12 @@ def panel_a(fig, ax):
     ico_sheets(ax, x + cw / 2, yy + 0.40, 0.66)
     yy += 0.92
     yy = para(ax, x + cw / 2, yy, "80% subsamples, full preprocessing refit",
-              cw - 0.36, size=7.6, color=TEXT, ha="center", leading=1.3)
+              cw - 0.36, size=TEXT_SIZE["subsample_text"], color=TEXT, ha="center", leading=1.3)
     yy += 0.26
     ico_refresh(ax, x + cw / 2, yy + 0.18, 0.32, "#4C6B8A")
     yy += 0.46
     para(ax, x + cw / 2, yy, "Repeat x 50 iterations",
-         cw - 0.36, size=7.6, color=TEXT, ha="center", leading=1.3)
+         cw - 0.36, size=TEXT_SIZE["subsample_text"], color=TEXT, ha="center", leading=1.3)
 
     x = xs[4]
     yy = _card_header(ax, x, cy, cw, 5, "Evaluation metrics", tw) + 0.10
@@ -142,10 +186,10 @@ def panel_a(fig, ax):
         "Phenotype characterization",
         "Robustness and sensitivity",
         "Reproducible code and outputs",
-    ], cw - 0.22, size=7.5)
+    ], cw - 0.22, size=TEXT_SIZE["checklist"])
 
 
-PANEL_BC = dict(y0=5.74, h=5.80)
+PANEL_BC = dict(y0=TEXT_POS["panel_bc_y"], h=TEXT_POS["panel_bc_h"])
 
 
 def panel_b(fig, ax):
@@ -161,12 +205,12 @@ def panel_b(fig, ax):
     for x, label, fc in ((lx, "Naive workflow", "#E9EDF2"),
                          (rx, "Clustro", "#D7E7F6")):
         rbox(ax, x, hy, colw, 0.48, fc=fc, ec="none", r=0.09, z=2)
-        txt(ax, x + colw / 2, hy + 0.25, label, size=11, weight="bold",
+        txt(ax, x + colw / 2, hy + 0.25, label, size=TEXT_SIZE["panel_b_header"], weight="bold",
             color=INK, ha="center", z=5)
 
     flow_top = hy + 0.48 + 0.26
     box_top = y0 + 4.32
-    tsize = 8.6
+    tsize = TEXT_SIZE["panel_b_body"]
 
     def flow(x, items, icon_color):
         heights = [max(0.40, text_height(lbl, colw - 0.80, tsize))
@@ -213,7 +257,7 @@ def panel_b(fig, ax):
     cy = box_top + 1.06
     for line in ("Trustworthy clusters require more than",
                  "one successful run."):
-        txt(ax, rx + colw / 2, cy, line, size=8.2, color=MUTED, style="italic",
+        txt(ax, rx + colw / 2, cy, line, size=TEXT_SIZE["panel_b_note"], color=MUTED, style="italic",
             ha="center", z=5)
         cy += 0.20
 
@@ -235,31 +279,31 @@ def panel_c(fig, ax):
     w = HALF
     panel(ax, x0, y0, w, h, letter="C", title="Decision logic")
 
-    grid_x, grid_w = x0 + 1.40, w - 1.40 - 0.32
+    grid_x = x0 + TEXT_POS["decision_grid_x_offset"]\n    grid_w = w - TEXT_POS["decision_grid_x_offset"] - 0.32
     cw = (grid_w - 0.20) / 2
     col_x = [grid_x, grid_x + cw + 0.20]
 
     rbox(ax, grid_x, y0 + 0.84, grid_w, 0.34, fc="#DCEAF7", ec="none", r=0.07, z=2)
-    txt(ax, grid_x + grid_w / 2, y0 + 1.01,
-        "Cluster separation (vs. null reference)", size=9.0, color=INK,
+    txt(ax, grid_x + grid_w / 2, y0 + TEXT_POS["decision_top_header_y_offset"],
+        "Cluster separation (vs. null reference)", size=TEXT_SIZE["decision_header"], color=INK,
         ha="center", z=5)
     for x, label in zip(col_x, ("High (better than null)",
                                 "Null-like (no better than null)")):
-        txt(ax, x + cw / 2, y0 + 1.40, label, size=9.0, weight="bold",
+        txt(ax, x + cw / 2, y0 + TEXT_POS["decision_col_header_y_offset"], label, size=TEXT_SIZE["decision_col_header"], weight="bold",
             color=TEXT, ha="center", z=5)
 
     row_y = [y0 + 1.60, y0 + 3.30]
     row_h = [1.60, 1.40]
 
-    ax.text(x0 + 0.56, (row_y[0] + row_y[1] + row_h[1]) / 2,
+    ax.text(x0 + TEXT_POS["decision_vertical_axis_x_offset"], (row_y[0] + row_y[1] + row_h[1]) / 2,
             "Reproducibility\n(full-refit stability)", rotation=90, ha="center",
-            va="center", size=8.6, color=TEXT, zorder=5, linespacing=1.4)
+            va="center", size=TEXT_SIZE["decision_axis"], color=TEXT, zorder=5, linespacing=1.4)
 
     for y, hh, top, bot in zip(row_y, row_h, ("High", "Low"),
                                ("(stable)", "(unstable)")):
-        txt(ax, x0 + 1.06, y + hh / 2 - 0.11, top, size=9.0, weight="bold",
+        txt(ax, x0 + TEXT_POS["decision_side_label_x_offset"], y + hh / 2 - 0.11, top, size=TEXT_SIZE["decision_axis_main"], weight="bold",
             color=TEXT, ha="center", z=5)
-        txt(ax, x0 + 1.06, y + hh / 2 + 0.11, bot, size=8.1, color=MUTED,
+        txt(ax, x0 + TEXT_POS["decision_side_label_x_offset"], y + hh / 2 + 0.11, bot, size=TEXT_SIZE["decision_axis_small"], color=MUTED,
             ha="center", z=5)
 
     cells = [
@@ -278,8 +322,8 @@ def panel_c(fig, ax):
         lw = 1.7 if r_ == 0 else 1.0
         rbox(ax, x, y, cw, hh, fc=fill, ec=edge, lw=lw, r=0.11, z=2)
         icon(ax, x + 0.38, y + 0.36, 0.30, col)
-        txt(ax, x + 0.64, y + 0.36, title, size=11.5, weight="bold", color=col, z=5)
-        bullets(ax, x + 0.26, y + 0.64, items, cw - 0.46, size=8.0, color=TEXT,
+        txt(ax, x + 0.64, y + 0.36, title, size=TEXT_SIZE["decision_cell_title"], weight="bold", color=col, z=5)
+        bullets(ax, x + 0.26, y + 0.64, items, cw - 0.46, size=TEXT_SIZE["decision_bullets"], color=TEXT,
                 dot_color=col)
 
     ly = row_y[1] + row_h[1] + 0.26
@@ -292,13 +336,13 @@ def panel_c(fig, ax):
         ax.add_patch(Circle((x0 + 0.50, ly + 0.16), 0.12, facecolor=col,
                             edgecolor="none", zorder=4))
         ly = rich_line(ax, x0 + 0.78, ly, f"{label} (n = {nn:,})", note,
-                       w - 1.15, size=8.6, lead_color=TEXT, fig=fig) + 0.12
+                       w - 1.15, size=TEXT_SIZE["decision_cohort_note"], lead_color=TEXT, fig=fig) + 0.12
 
 
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
-    figure_title(ax, 0.42, 0.50, "Figure 1. Clustro workflow and decision logic")
+    title_x, title_y = TEXT_POS["figure_title"]\n    figure_title(ax, title_x, title_y, "Figure 1. Clustro workflow and decision logic",\n                 size=TEXT_SIZE["figure_title"])
     panel_a(fig, ax)
     panel_b(fig, ax)
     panel_c(fig, ax)
