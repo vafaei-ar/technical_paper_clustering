@@ -107,97 +107,79 @@ def panel_c(fig, ax):
     panel(ax, x0, y0, w, h, letter="C",
           title="Decision map: separation vs reproducibility")
 
-    mx, my = x0 + 1.60, y0 + 1.05
-    cw, ch, gap = 2.62, 1.40, 0.10
-    quadrants = [
-        (0, 0, "Caution", "Null-like separation\nbut stable", FILL_ORANGE,
-         "#F0C089", "#D9821B", ("Sepsis", ORANGE)),
-        (0, 1, "Promising", "Higher than null\nand stable", FILL_GREEN,
-         "#9AD3B7", "#1B7A50", ("Stroke", BLUE)),
-        (1, 0, "Reject", "Null-like separation\nand unstable", FILL_RED,
-         EDGE_RED, RED, None),
-        (1, 1, "Unstable", "Higher than null\nbut unstable", "#FDE7E9",
-         "#F3BFC5", "#C0392B", None),
+    grid_x = x0 + 2.05
+    grid_w = w - 2.60
+    gap = 0.20
+    cw = (grid_w - gap) / 2
+    row_y = [y0 + 1.42, y0 + 3.18]
+    row_h = [1.55, 1.40]
+    col_x = [grid_x, grid_x + cw + gap]
+
+    rbox(ax, grid_x, y0 + 0.82, grid_w, 0.36,
+         fc="#DCEAF7", ec="none", r=0.07, z=2)
+    txt(ax, grid_x + grid_w / 2, y0 + 1.00,
+        "Cluster separation (vs. null reference)",
+        size=10.0, color=INK, ha="center", z=5)
+
+    for x, label in zip(
+        col_x,
+        ("High (better than null)", "Null-like (no better than null)")
+    ):
+        txt(ax, x + cw / 2, y0 + 1.28, label,
+            size=9.3, weight="bold", color=TEXT, ha="center", z=5)
+
+    ax.text(
+        x0 + 0.78,
+        (row_y[0] + row_y[1] + row_h[1]) / 2,
+        "Reproducibility\n(full-refit stability)",
+        rotation=90, ha="center", va="center",
+        size=9.6, color=TEXT, zorder=5, linespacing=1.35
+    )
+
+    for y, hh, top, bot in zip(
+        row_y, row_h, ("Higher", "Lower"), ("(more stable)", "(less stable)")
+    ):
+        txt(ax, x0 + 1.56, y + hh / 2 - 0.12, top,
+            size=9.2, weight="bold", color=TEXT, ha="right", z=5)
+        txt(ax, x0 + 1.56, y + hh / 2 + 0.13, bot,
+            size=8.3, color=MUTED, ha="right", z=5)
+
+    cells = [
+        (0, 0, "Promising", "Higher than null\nand stable",
+         FILL_GREEN, "#9AD3B7", "#1B7A50", ("Stroke", BLUE)),
+        (0, 1, "Caution", "Null-like separation\nbut stable",
+         FILL_ORANGE, "#F0C089", "#D9821B", ("Sepsis", ORANGE)),
+        (1, 0, "Unstable", "Higher than null\nbut unstable",
+         "#FDE7E9", "#F3BFC5", RED, None),
+        (1, 1, "Reject", "Null-like separation\nand unstable",
+         FILL_RED, EDGE_RED, RED, None),
     ]
-    for r_, c_, title, sub, fill, edge, col, marker in quadrants:
-        x = mx + c_ * (cw + gap)
-        y = my + r_ * (ch + gap)
-        rbox(ax, x, y, cw, ch, fc=fill, ec=edge, lw=1.1, r=0.10, z=2)
-        txt(ax, x + cw / 2, y + 0.32, title, size=13.5, weight="bold", color=col,
-            ha="center", z=5)
-        ax.text(x + cw / 2, y + 0.74, sub, ha="center", va="center", size=9.2,
+
+    for r_, c_, title, sub, fill, edge, col, marker in cells:
+        x = col_x[c_]
+        y = row_y[r_]
+        hh = row_h[r_]
+        rbox(ax, x, y, cw, hh, fc=fill, ec=edge,
+             lw=1.4 if r_ == 0 else 1.0, r=0.11, z=2)
+        txt(ax, x + cw / 2, y + 0.34, title,
+            size=13.5, weight="bold", color=col, ha="center", z=5)
+        ax.text(x + cw / 2, y + 0.78, sub,
+                ha="center", va="center", size=9.3,
                 color=TEXT, linespacing=1.35, zorder=5)
         if marker:
             label, mcol = marker
-            ax.add_patch(Circle((x + cw / 2 - 0.46, y + 1.14), 0.125,
-                                facecolor=mcol, edgecolor="none", zorder=5))
-            txt(ax, x + cw / 2 - 0.26, y + 1.14, label, size=10.2, weight="bold",
-                color=mcol, z=5)
+            ax.add_patch(Circle((x + cw / 2 - 0.52, y + hh - 0.30),
+                                0.13, facecolor=mcol, edgecolor="none", zorder=5))
+            txt(ax, x + cw / 2 - 0.30, y + hh - 0.30, label,
+                size=10.4, weight="bold", color=mcol, z=5)
 
-    gx1, gx2 = mx, mx + 2 * cw + gap
-    gy1, gy2 = my, my + 2 * ch + gap
-
-    arrow(ax, gx1 - 0.30, gy2 + 0.12, gx1 - 0.30, gy1 - 0.26, color="#37485E",
-          lw=1.4, ms=11)
-    arrow(ax, gx1 - 0.30, gy2 + 0.12, gx2 + 0.20, gy2 + 0.12, color="#37485E",
-          lw=1.4, ms=11)
-
-    txt(ax, gx1 - 0.44, gy1 + 0.08, "Higher", size=8.8, weight="bold",
-        color=TEXT, ha="right")
-    txt(ax, gx1 - 0.44, gy1 + 0.28, "(more stable)", size=8.0, color=MUTED, ha="right")
-    txt(ax, gx1 - 0.44, gy2 - 0.26, "Lower", size=8.8, weight="bold",
-        color=TEXT, ha="right")
-    txt(ax, gx1 - 0.44, gy2 - 0.06, "(less stable)", size=8.0, color=MUTED, ha="right")
-    ax.text(gx1 - 1.12, (gy1 + gy2) / 2, "Reproducibility\n(full-refit stability)",
-            rotation=90, ha="center", va="center", size=9.4, color=TEXT,
-            linespacing=1.4, zorder=5)
-
-    txt(ax, gx1, gy2 + 0.38, "Null-like", size=8.8, weight="bold", color=TEXT)
-    txt(ax, gx1, gy2 + 0.58, "(lower than null)", size=8.0, color=MUTED)
-    txt(ax, gx2, gy2 + 0.38, "Higher", size=8.8, weight="bold", color=TEXT, ha="right")
-    txt(ax, gx2, gy2 + 0.58, "(higher than null)", size=8.0, color=MUTED, ha="right")
-    txt(ax, (gx1 + gx2) / 2, gy2 + 0.92, "Separation vs. null reference",
-        size=10, weight="bold", color=INK, ha="center")
-
-    vline(ax, x0 + w * 0.505, y0 + 0.62, y0 + h - 0.30, color="#DCE4EC", lw=1.1)
-
-    kx, kw = x0 + w * 0.535, w * 0.465 - 0.35
-    txt(ax, kx, y0 + 0.84, "Key takeaways", size=12.5, weight="bold", color=INK)
-
-    blocks = [
-        (BLUE, FILL_BLUE, "#CFE2F3", "Stroke: strong evidence of structure",
-         [f"Observed silhouette ({D.NULL_STROKE['observed']:.3f}) exceeds the "
-          f"null (mean {D.NULL_STROKE['mean']:.3f}).",
-          f"{D.NULL_STROKE['n_ge']}/{D.NULL_STROKE['n_rep']} null replicates "
-          f">= observed (empirical p = {D.NULL_STROKE['p']:.3f}).",
-          "More separation than expected under the null."]),
-        (ORANGE, "#FDF2E6", "#F5D9BC", "Sepsis: consistent with a null-like structure",
-         [f"Observed silhouette ({D.NULL_SEPSIS['observed']:.3f}) does not exceed "
-          f"null reference (mean {D.NULL_SEPSIS['mean']:.3f}).",
-          f"{D.NULL_SEPSIS['n_ge']}/{D.NULL_SEPSIS['n_rep']} null replicates "
-          f">= observed (empirical p = {D.NULL_SEPSIS['p']:.3f}).",
-          "High stability alone is not evidence of latent classes."]),
-    ]
-    yy = y0 + 1.06
-    for col, fill, edge, heading, items in blocks:
-        bh = 0.60 + sum(text_height(it, kw - 0.85, 8.4, 1.32) + 0.045
-                        for it in items) + 0.10
-        rbox(ax, kx, yy, kw, bh, fc=fill, ec=edge, lw=0.9, r=0.10, z=2)
-        ax.add_patch(Circle((kx + 0.32, yy + 0.30), 0.135, facecolor=col,
-                            edgecolor="none", zorder=4))
-        txt(ax, kx + 0.58, yy + 0.30, heading, size=10, weight="bold",
-            color=col, z=5)
-        bullets(ax, kx + 0.62, yy + 0.54, items, kw - 0.85, size=8.4,
-                color=TEXT, dot_color=col)
-        yy += bh + 0.15
-
-    rbox(ax, kx, yy, kw, 0.92, fc="#EAF1F8", ec="#CFDEEC", lw=0.9, r=0.10, z=2)
-    txt(ax, kx + 0.24, yy + 0.26, "Conclusion", size=10.5, weight="bold",
-        color=INK, z=5)
-    para(ax, kx + 0.24, yy + 0.44,
-         "Null-reference benchmarking separates reproducible structure from "
-         "patterns that can arise under a no-mixture reference.",
-         kw - 0.48, size=8.6, color=TEXT, z=5)
+    txt(ax, grid_x, y0 + h - 0.36, "Higher than null",
+        size=8.8, weight="bold", color=TEXT, ha="left")
+    txt(ax, grid_x + grid_w, y0 + h - 0.36, "Null-like",
+        size=8.8, weight="bold", color=TEXT, ha="right")
+    txt(ax, grid_x + grid_w / 2, y0 + h - 0.10,
+        "Separation vs. null reference",
+        size=10.0, weight="bold", color=INK, ha="center")
 
 
 def build(outdir="."):
