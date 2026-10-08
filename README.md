@@ -79,36 +79,13 @@ results/<cohort>/<run_id>/manuscript_outputs/tables/
   tableS_candidate_model_selection.csv
 ```
 
-## Paper-level publication figures
+## Earlier paper-figure generator (legacy)
 
-After both cohort runs and manuscript outputs exist, generate the compact paper-level figures with:
-
-```bash
-python generate_paper_figures.py \
-  --stroke-run results/stroke/<stroke_run_id> \
-  --sepsis-run results/sepsis/<sepsis_run_id>
-```
-
-The default outputs are written to:
-
-```text
-results/paper_figures/latest/
-  figures/
-    figure1_workflow.png
-    figure1_workflow.pdf
-    figure2_pca_projection.png
-    figure2_pca_projection.pdf
-    figure3_phenotype_heatmaps.png
-    figure3_phenotype_heatmaps.pdf
-    figure4_posthoc_effect_sizes.png
-    figure4_posthoc_effect_sizes.pdf
-  manifests/
-    paper_figure_manifest.json
-```
-
-These figures follow the project figure standard by using compact canvases, large readable text, short cluster labels, subordinate color bars, non-rotated heatmap labels, explicit sample sizes, deterministic PCA display sampling, vector PDF export, and separated footer notes.
-
-A dedicated stability-selection figure is intentionally not included in this paper-level set. Existing stability summaries remain available in the manuscript tables, while deeper stability-selection analyses are reserved for future work.
+The prior four-figure workflow is retained in `generate_paper_figures.py`
+for reproducibility of older manuscript versions. It is **not** the current
+five-figure manuscript visualization workflow. Its outputs go to
+`results/paper_figures/latest/`. Do not delete or alter this generator while
+older manuscript results may still need to be reproduced.
 
 ## Primary models
 
@@ -125,3 +102,38 @@ sepsis: ed4fed84e5c3d533b2fc84177d471fc881e3b5a7e24c404faf10f75556963763
 ```
 
 Verify local inputs before reproducing the paper outputs.
+
+
+## Current manuscript figure set (Figures 1-5)
+
+The authoritative, editable Python figure scripts are in `paper_figures/`.
+They use completed reviewer-driven analysis outputs and **do not refit
+clustering models**. First generate the methods-revision reporting outputs
+using `regenerate_methods_revision_reporting.sh` when necessary, and then:
+
+```bash
+python paper_figures/make_figures.py \
+  --outdir results/final_paper_figures \
+  --pdf --dpi 600
+```
+
+Five figures are produced: workflow, model selection, null reference,
+phenotype heatmaps, and robustness/sensitivity analysis. Private cohort data
+and all generated results remain outside version control.
+
+For layout editing, change the `TEXT_SIZE`, `TEXT_POS`, `SHOW`, or
+`STYLE` dictionaries at the start of the relevant `fig*.py` script.
+See `paper_figures/README.md` for data dependencies, figure-by-figure
+commands, and settings.
+
+## Branch and quality-check policy
+
+- `main` is the integration branch for the reproducible manuscript workflow.
+- Develop changes in short-lived topic branches; merge reviewed changes into
+  `main` instead of maintaining parallel long-running versions.
+- GitHub Actions runs syntax compilation and the existing synthetic/unit tests.
+  It cannot reproduce private-patient-data analyses in CI.
+- Historical `generate_author_revision_materials_v*.py` and other reporting
+  scripts are deliberately retained until their outputs are archived and
+  provenance dependencies verified.
+

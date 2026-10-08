@@ -12,7 +12,13 @@ from tpcluster.core import fit_clusterer, prepare_matrix, reduce_matrix
 
 
 def latest_full_run(output_dir: str | Path) -> Path:
-    runs = [p for p in Path(output_dir).iterdir() if p.is_dir() and (p / "internal_metrics.csv").exists() and len(pd.read_csv(p / "internal_metrics.csv")) >= 270]
+    runs = [
+        p
+        for p in Path(output_dir).iterdir()
+        if p.is_dir()
+        and (p / "internal_metrics.csv").exists()
+        and len(pd.read_csv(p / "internal_metrics.csv")) >= 270
+    ]
     if not runs:
         raise FileNotFoundError(f"No full run found under {output_dir}")
     return max(runs, key=lambda p: p.stat().st_mtime)
@@ -30,6 +36,15 @@ def main() -> None:
     parser.add_argument("--n-repeats", type=int, default=50)
     parser.add_argument("--sample-fraction", type=float, default=0.80)
     parser.add_argument("--base-seed", type=int, default=1001)
+    parser.add_argument(
+        "--refit-preprocessing",
+        action="store_true",
+        help=(
+            "Refit plausibility handling, transformations, imputation, clipping, scaling, "
+            "dimensionality reduction, and clustering independently within each subsample. "
+            "Without this flag, the historical conditional-stability behavior is retained."
+        ),
+    )
     args = parser.parse_args()
 
     with open(args.config, encoding="utf-8") as file:
@@ -38,7 +53,9 @@ def main() -> None:
         candidates = yaml.safe_load(file)[cfg["dataset_name"]]
 
     frame = pd.read_parquet(cfg["input_path"])
-    _, _, x_scaled, *_ = prepare_matrix(frame, cfg["features"]["primary"], cfg.get("preprocessing", {}))
+    _, _, x_scaled, *_ = prepare_matrix(
+        frame, cfg["features"]["primary"], cfg.get("preprocessing", {})
+    )
     run_dir = latest_full_run(cfg["output_dir"])
     n = len(frame)
     sample_n = int(np.floor(n * args.sample_fraction))
@@ -52,29 +69,52 @@ def main() -> None:
             seed = args.base_seed + repeat
             rng = np.random.default_rng(seed)
             selected = np.sort(rng.choice(n, size=sample_n, replace=False))
-            labels = fit_solution(x_scaled[selected], candidate, seed)
+
+            if args.refit_preprocessing:
+                subset = frame.iloc[selected].reset_index(drop=True)
+                _, _, subset_scaled, *_ = prepare_matrix(
+                    subset,
+                    cfg["features"]["primary"],
+                    cfg.get("preprocessing", {}),
+                )
+                labels = fit_solution(subset_scaled, candidate, seed)
+            else:
+                labels = fit_solution(x_scaled[selected], candidate, seed)
+
             counts = pd.Series(labels).value_counts()
-            rows.append({
-                "dataset": cfg["dataset_name"],
-                "candidate": candidate["name"],
-                "reduction": candidate["reduction"],
-                "clusterer": candidate["clusterer"],
-                "k": int(candidate["k"]),
-                "reference_seed": reference_seed,
-                "subsample_seed": seed,
-                "sample_fraction": args.sample_fraction,
-                "sample_n": sample_n,
-                "ari_vs_full": adjusted_rand_score(full_labels[selected], labels),
-                "minimum_cluster_size": int(counts.min()),
-                "maximum_cluster_size": int(counts.max()),
-                "minimum_cluster_fraction": float(counts.min() / sample_n),
-                "full_minimum_cluster_size": int(full_counts.min()),
-                "full_minimum_cluster_fraction": float(full_counts.min() / n),
-            })
+            rows.append(
+                {
+                    "dataset": cfg["dataset_name"],
+                    "candidate": candidate["name"],
+                    "reduction": candidate["reduction"],
+                    "clusterer": candidate["clusterer"],
+                    "k": int(candidate["k"]),
+                    "reference_seed": reference_seed,
+                    "subsample_seed": seed,
+                    "sample_fraction": args.sample_fraction,
+                    "sample_n": sample_n,
+                    "preprocessing_refit_within_subsample": bool(
+                        args.refit_preprocessing
+                    ),
+                    "ari_vs_full": adjusted_rand_score(
+                        full_labels[selected], labels
+                    ),
+                    "minimum_cluster_size": int(counts.min()),
+                    "maximum_cluster_size": int(counts.max()),
+                    "minimum_cluster_fraction": float(counts.min() / sample_n),
+                    "full_minimum_cluster_size": int(full_counts.min()),
+                    "full_minimum_cluster_fraction": float(full_counts.min() / n),
+                }
+            )
 
     detailed = pd.DataFrame(rows)
-    detailed.to_csv(run_dir / "subsample_stability_detailed.csv", index=False)
-    summary = detailed.groupby(["dataset", "candidate", "reduction", "clusterer", "k"], as_index=False).agg(
+    suffix = "_full_refit" if args.refit_preprocessing else ""
+    detailed.to_csv(
+        run_dir / f"subsample_stability{suffix}_detailed.csv", index=False
+    )
+    summary = detailed.groupby(
+        ["dataset", "candidate", "reduction", "clusterer", "k"], as_index=False
+    ).agg(
         mean_subsample_ari=("ari_vs_full", "mean"),
         median_subsample_ari=("ari_vs_full", "median"),
         sd_subsample_ari=("ari_vs_full", "std"),
@@ -84,7 +124,12 @@ def main() -> None:
         minimum_cluster_fraction=("minimum_cluster_fraction", "min"),
         mean_minimum_cluster_fraction=("minimum_cluster_fraction", "mean"),
     )
-    summary.to_csv(run_dir / "subsample_stability_summary.csv", index=False)
+    summary["preprocessing_refit_within_subsample"] = bool(
+        args.refit_preprocessing
+    )
+    summary.to_csv(
+        run_dir / f"subsample_stability{suffix}_summary.csv", index=False
+    )
     print(summary.to_string(index=False))
 
 
