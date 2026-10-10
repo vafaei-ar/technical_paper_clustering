@@ -148,6 +148,45 @@ The **index-date range is not the source-database coverage period or data
 extraction/freeze date**. Record those separately from your data-release
 manifest or request them from the data custodian.
 
+## Focused sepsis null-distance diagnostic
+
+The manuscript's exploratory null reference showed higher silhouette
+separation in Gaussian-copula references than in the observed sepsis cohort.
+To investigate **where this difference arises**, rather than assume its
+mechanism, run the following on the local frozen data:
+
+```bash
+python scripts/diagnose_null_distances.py
+```
+
+This diagnostic fits the same PCA k-means `k=3` pipeline to the **full**
+observed sepsis cohort and 12 full-size Gaussian-copula references. It
+evaluates their fitted groups using the **same 2,000 sampled rows** for
+every comparison. Two PCA specifications are compared independently:
+the original 90%-explained-variance rule, and **fixed 25 components**
+(the number retained in the observed primary run).
+
+Reported aggregate metrics include the sampled silhouette distribution
+and negative-silhouette fraction, mean within-cluster distance `a(i)`,
+nearest competing cluster mean distance `b(i)`, the `b-a` margin,
+between/total sum-of-squares fraction, cluster-level distance summaries
+ordered by cluster **size rank**, and the observed agreement of adaptive
+versus fixed PCA labels. A fixed sample ensures consistent pairwise
+distance comparisons; cluster labels are always fitted on the full cohort.
+
+Output (under the ignored `results/` directory):
+
+- `results/null_distance_diagnostics/sepsis_distance_summary.json`
+- `results/null_distance_diagnostics/sepsis_reference_distance_summary.csv`
+- `results/null_distance_diagnostics/sepsis_cluster_distance_aggregates.csv`
+
+These files contain **aggregate statistics only**, not individual
+patients, feature rows, or identifiers. This 12-reference analysis is
+exploratory and **does not replace** the full-cohort silhouette results
+or the separate 20-reference ARI experiment in the paper. Identifying
+differences in `a(i)` or `b(i)` suggests a geometric explanation,
+but does not validate the null model or prove a clinical subtype claim.
+
 ## Current manuscript figure set (Figures 1-5)
 
 The authoritative, editable Python figure scripts are in `paper_figures/`.
