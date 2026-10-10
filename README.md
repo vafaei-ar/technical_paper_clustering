@@ -120,6 +120,24 @@ date-range anomalies. It compares row counts with the manuscript cohorts
 (stroke 9,835; sepsis 15,842). Only an **aggregate JSON** is created at
 `results/provenance/cohort_index_date_summary.json`, which is excluded from Git.
 
+The current frozen sepsis analysis file may contain no date columns.
+In that case, identify the original `first_sepsis_encounters.parquet`
+(or CSV) from the same underlying release. The program **never guesses**
+which file to use. You can locate candidates without reading patient records:
+
+```bash
+find ~/works -type f \( -name 'first_sepsis_encounters.parquet' -o -name 'first_sepsis_encounters.csv' \)
+python scripts/report_cohort_dates.py --sepsis-index-file /path/to/first_sepsis_encounters.parquet
+```
+
+It matches `PATID` against the frozen cohort and flags missing patients,
+source-only patients, and duplicate source patient IDs. The date range is
+not considered complete if some frozen patients have no matching dates.
+In particular, an older sepsis extraction reported 15,825 patients and
+the clustering cohort has 15,842. **Do not assume an older extraction
+is the matching release.** If dates are unavailable, the script still
+saves and prints the stroke summary plus an explicit sepsis error.
+
 If the Parquet files are not in the default `data/` locations, pass
 `--stroke /absolute/path/to/stroke.parquet` and
 `--sepsis /absolute/path/to/sepsis.parquet`.
