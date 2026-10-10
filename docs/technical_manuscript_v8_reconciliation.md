@@ -37,9 +37,30 @@ The author-review manuscript v8 is based on v7 accepted preview. The five-figure
 
 Do not commit patient-level data or locally produced result directories to the repository.
 
+## Verified frozen-cohort index-date provenance (2026-10-10)
+
+The author ran `scripts/report_cohort_dates.py` against the **frozen local clustering input files**. This table reports observed index-event dates, **not** source-data extraction/freeze dates.
+
+| Audit | Stroke | Sepsis |
+| --- | --- | --- |
+| Frozen file | `data/stroke/stroke_cohort_imputed.parquet` | `data/sepsis/sepsis_cohort_imputed_safe.parquet` |
+| Index-date source | `DX_DATE_stroke` in frozen file | `DX_DATE_sepsis` from the local `first_sepsis_encounters.parquet`, joined by `PATID` |
+| First observed index date | 2010-01-02 | 2010-01-03 |
+| Last observed index date | 2024-09-24 | 2024-09-24 |
+| Frozen rows / distinct patients | 9,835 / 9,835 | 15,842 / 15,842 |
+| Valid index dates | 9,835 | 15,842 |
+| Missing or unparseable dates | 0 | 0 |
+| Duplicate frozen PATIDs | 0 | 0 |
+| Frozen patients missing in sepsis index-date source | N/A | 0 |
+| Source patients not in frozen sepsis cohort | N/A | 0 |
+
+Stroke extraction logic is documented in `TheDecodeLab/PROMIS-ML-pipeline` (harmonized Penn State Health PCORI-CDM broad extraction). The sepsis extraction steps are documented in `vafaei-ar/sepsis`. The sepsis index-date source matches all 15,842 frozen patient IDs, but matching identifiers alone cannot independently confirm the full source-data release/freeze provenance. An older sepsis documentation count of 15,825 is historical and must not replace the audited 15,842 analytic denominator.
+
+Study-period wording suitable for the manuscript: *Index events occurred from January 2, 2010, through September 24, 2024, in stroke and from January 3, 2010, through September 24, 2024, in sepsis*. The raw-data coverage period, source extraction/freeze date, and IRB determination still require institutional confirmation; use **XXX** only for the pending IRB text until verified.
+
 ## Submission blockers
 
-- Confirm cohort source institutions, periods, extraction dates, inclusion/exclusion definitions, diagnostic code lists and exact `PATID` source interpretation.
+- The observed index-date ranges, analytic counts, and sepsis patient-ID linkage are verified above. Confirm source-database coverage, extraction/freeze dates, any remaining inclusion/exclusion definition details, the versioned diagnosis-code lists, and the exact `PATID` source interpretation before submission.
 - Obtain IRB determinations, protocol numbers, consent waivers, and governance text.
 - Verify upstream sepsis missingness and imputation process.
 - Provide all full per-feature phenotype profiles and re-check frozen input hashes.
