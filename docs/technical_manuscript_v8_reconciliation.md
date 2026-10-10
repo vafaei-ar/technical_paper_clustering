@@ -58,6 +58,53 @@ Stroke extraction logic is documented in `TheDecodeLab/PROMIS-ML-pipeline` (harm
 
 Study-period wording suitable for the manuscript: *Index events occurred from January 2, 2010, through September 24, 2024, in stroke and from January 3, 2010, through September 24, 2024, in sepsis*. The raw-data coverage period, source extraction/freeze date, and IRB determination still require institutional confirmation; use **XXX** only for the pending IRB text until verified.
 
+## Exploratory sepsis distance diagnostics (local frozen-data run, 2026-10-10)
+
+The author executed `python scripts/diagnose_null_distances.py` locally on
+the frozen **15,842-patient, 52-feature** sepsis cohort. Analysis fit
+PCA k-means (`k=3`) to each complete dataset; the same **2,000 sampled
+row indices** were used to calculate Euclidean silhouette components
+within each independently generated dataset. This 12-reference analysis
+is **exploratory** and must not replace the separate full-cohort
+100-reference silhouette or 20-reference stability analyses.
+
+| Metric | Observed sepsis | Mean of 12 references (90% PCA) | Mean of 12 references (fixed 25 PCs) |
+| --- | ---: | ---: | ---: |
+| Mean sampled silhouette | 0.170369 | 0.198260 | 0.199709 |
+| Negative silhouette fraction | 0.128000 | 0.091375 | 0.090500 |
+| Mean within-cluster distance `a(i)` | 7.642366 | 7.647442 | 7.582000 |
+| Mean nearest-other-cluster distance `b(i)` | 9.240596 | 9.583406 | 9.519842 |
+| Mean separation margin `b(i)-a(i)` | 1.598230 | 1.935964 | 1.937842 |
+| Between/total variance fraction | 0.167386 | 0.168131 | 0.170342 |
+| Smallest cluster fraction | 0.085974 | 0.083049 | 0.083496 |
+| PCA components | 25 | 26.333 mean | 25 |
+
+Observed **adaptive-versus-fixed 25-PC ARI = 1.000**. Thus the
+adaptive reference dataset PCA component count does not account for the
+difference in sampled silhouettes: reference separation is also higher
+after fixing the count at 25.
+
+The observed within-cluster mean distance closely matches the
+adaptive-reference mean, while the observed distance to the nearest
+other cluster is smaller by ~0.343 distance units, reducing the margin
+from ~1.936 to ~1.598. Negative silhouette fraction was 12.8% observed
+versus 9.14% reference mean. **Supported interpretation:** more
+competition/overlap between fitted groups under the tested Euclidean
+representation. **Not demonstrated:** why the observed joint
+distribution and the Gaussian-copula draws produce this geometry, or
+that clinical heterogeneity is absent. Evaluate alternative reference
+models before giving a biological interpretation.
+
+Local aggregate output files, not checked into Git:
+`results/null_distance_diagnostics/sepsis_distance_summary.json`,
+`sepsis_reference_distance_summary.csv`, and
+`sepsis_cluster_distance_aggregates.csv`.
+
+Author-review documents incorporating these results:
+`Clustro_Technical_Manuscript_v8_4_author_review.docx` and
+`Clustro_Technical_Supplement_v5_2_author_review.docx` (new S16).
+These manuscript files are deliberately kept outside this code repository.
+
 ## Submission blockers
 
 - The observed index-date ranges, analytic counts, and sepsis patient-ID linkage are verified above. Confirm source-database coverage, extraction/freeze dates, any remaining inclusion/exclusion definition details, the versioned diagnosis-code lists, and the exact `PATID` source interpretation before submission.
