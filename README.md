@@ -104,6 +104,32 @@ sepsis: ed4fed84e5c3d533b2fc84177d471fc881e3b5a7e24c404faf10f75556963763
 Verify local inputs before reproducing the paper outputs.
 
 
+## Frozen cohort index-date provenance
+
+To verify the study periods directly from the **private, frozen Parquet files**,
+run this from the repository root:
+
+```bash
+python scripts/report_cohort_dates.py
+```
+
+The script reads only `PATID` and the original index-date columns
+(`DX_DATE_stroke`, `DX_DATE_sepsis`). It reports the earliest/latest dates,
+row counts, distinct patients, missing/unparseable index dates, and obvious
+date-range anomalies. It compares row counts with the manuscript cohorts
+(stroke 9,835; sepsis 15,842). Only an **aggregate JSON** is created at
+`results/provenance/cohort_index_date_summary.json`, which is excluded from Git.
+
+If the Parquet files are not in the default `data/` locations, pass
+`--stroke /absolute/path/to/stroke.parquet` and
+`--sepsis /absolute/path/to/sepsis.parquet`.
+If the expected date column is missing, the script lists candidate fields and
+stops rather than silently substituting an admission date.
+
+The **index-date range is not the source-database coverage period or data
+extraction/freeze date**. Record those separately from your data-release
+manifest or request them from the data custodian.
+
 ## Current manuscript figure set (Figures 1-5)
 
 The authoritative, editable Python figure scripts are in `paper_figures/`.
