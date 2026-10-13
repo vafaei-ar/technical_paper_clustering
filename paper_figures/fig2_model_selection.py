@@ -23,15 +23,15 @@ HALF = (PW - 0.36) / 2
 # --------------------------------------------------------------------------- #
 TEXT_SIZE = {
     "figure_title": 18.0,
-    "axis_label": 15.6,
-    "point_label": 13.3,
-    "callout": 11.5,
-    "rationale_heading": 10.0,
-    "rationale_box_title": 9.6,
-    "rationale_bullets": 8.6,
-    "rationale_explainer_title": 8.8,
-    "rationale_explainer_body": 8.8,
-    "legend": 9.6,
+    "axis_label": 16.4,
+    "point_label": 14.5,
+    "callout": 12.6,
+    "rationale_heading": 11.0,
+    "rationale_box_title": 10.6,
+    "rationale_bullets": 9.6,
+    "rationale_explainer_title": 9.8,
+    "rationale_explainer_body": 9.6,
+    "legend": 10.4,
 }
 
 TEXT_POS = {
@@ -71,7 +71,7 @@ def _scatter_panel(fig, ax_c, x0, y0, w, h, letter, title, candidates, selected,
                    xlim, ylim, xticks=None, yticks=None, annotations=()):
     panel(ax_c, x0, y0, w, h, letter=letter, title=title)
 
-    ax = axes_in(fig, x0 + 1.05, y0 + 0.92, w - 1.45, h - 1.72)
+    ax = axes_in(fig, x0 + 1.12, y0 + 0.86, w - 1.50, h - 1.62)
     tidy_axes(ax, grid="both")
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
@@ -137,20 +137,35 @@ def panel_c(fig, ax):
                  lw=1.5 if is_sel else 0.9, r=0.10, z=2)
             txt(ax, bx + 0.20, box_y + 0.26, btitle, size=TEXT_SIZE["rationale_box_title"], weight="bold",
                 color=RED if is_sel else "#1B7A50", z=5)
-            bullets(ax, bx + 0.22, box_y + 0.48, items, bw - 0.40, size=TEXT_SIZE["rationale_bullets"],
+            bsize = TEXT_SIZE["rationale_bullets"]
+            for _ in range(12):
+                need = sum(text_height(it, bw - 0.40 - 0.16, bsize, 1.32) + 0.045
+                           for it in items)
+                if need <= box_h - 0.62:
+                    break
+                bsize *= 0.95
+            bullets(ax, bx + 0.22, box_y + 0.50, items, bw - 0.40, size=bsize,
                     color=TEXT, dot_color=RED if is_sel else "#1B7A50")
 
     ix, iw = x0 + 11.70, 2.30
-    rbox(ax, ix, top, iw, box_y + box_h - top, fc="#F3F8FC", ec="none",
-         r=0.10, z=2)
-    ico_gear(ax, ix + 0.22, top + 0.26, 0.30, "#40536B")
-    end = para(ax, ix + 0.44, top + 0.06,
-               "Model choice uses several criteria", iw - 0.56,
-               size=TEXT_SIZE["rationale_explainer_title"], color=INK, weight="bold")
-    para(ax, ix + 0.14, max(end, top + 0.60) + 0.12,
-         "Separation, full-refit stability, cluster-size adequacy and robustness "
-         "are weighed together rather than any single metric.",
-         iw - 0.30, size=TEXT_SIZE["rationale_explainer_body"], color=TEXT)
+    ibox_h = box_y + box_h - top
+    rbox(ax, ix, top, iw, ibox_h, fc="#F3F8FC", ec="none", r=0.10, z=2)
+    head = "Model choice uses several criteria"
+    body = ("Separation, full-refit stability, cluster-size adequacy and "
+            "robustness are weighed together rather than any single metric.")
+    hs = TEXT_SIZE["rationale_explainer_title"]
+    bs = TEXT_SIZE["rationale_explainer_body"]
+    for _ in range(14):                     # fit, then centre in the box
+        hh = max(0.44, text_height(head, iw - 0.56, hs))
+        bh = text_height(body, iw - 0.28, bs)
+        if hh + 0.16 + bh <= ibox_h - 0.30:
+            break
+        hs *= 0.95
+        bs *= 0.95
+    yy = top + (ibox_h - (hh + 0.16 + bh)) / 2
+    ico_gear(ax, ix + 0.22, yy + 0.20, 0.30, "#40536B")
+    para(ax, ix + 0.44, yy, head, iw - 0.56, size=hs, color=INK, weight="bold")
+    para(ax, ix + 0.14, yy + hh + 0.16, body, iw - 0.28, size=bs, color=TEXT)
 
 
 def legend_strip(fig, ax):
@@ -222,7 +237,7 @@ def build(outdir="."):
                  lines=["$k$ = 4", "(higher stability)"], fc=FILL_GREEN,
                  ec="#9AD3B7", tc="#1B7A50"),
             dict(xy=s3, xytext=TEXT_POS["stroke_selected_box"],
-                 lines=["Selected $k$ = 3", "(best compromise)"], fc=FILL_RED,
+                 lines=["Selected $k$ = 3", "(reporting choice)"], fc=FILL_RED,
                  ec=EDGE_RED, tc=RED),
             dict(xy=s2, xytext=TEXT_POS["stroke_k2_box"],
                  lines=["$k$ = 2", "(higher separation)"], fc=FILL_GREEN,
@@ -249,7 +264,7 @@ def build(outdir="."):
         sepsis_annotations.insert(
             0,
             dict(xy=e3, xytext=TEXT_POS["sepsis_selected_box"],
-                 lines=["Selected $k$ = 3", "(best compromise)"], fc=FILL_RED,
+                 lines=["Selected $k$ = 3", "(reporting choice)"], fc=FILL_RED,
                  ec=EDGE_RED, tc=RED),
         )
 
