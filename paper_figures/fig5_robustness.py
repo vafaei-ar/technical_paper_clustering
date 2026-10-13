@@ -25,16 +25,16 @@ HALF = (PW - 0.36) / 2
 # --------------------------------------------------------------------------- #
 TEXT_SIZE = {
     "figure_title": 18.0,
-    "subhead": 9.6,
-    "note_heading": 8.8,
-    "note_body": 8.3,
-    "bar_axis_label": 14.0,
-    "bar_value": 14.8,
-    "bar_label": 14.1,
-    "k_axis_label": 13.8,
-    "k_tick_label": 13.1,
-    "k_value_label": 13.3,
-    "cohort_legend": 9.4,
+    "subhead": 10.6,
+    "note_heading": 10.0,
+    "note_body": 9.4,
+    "bar_axis_label": 15.5,
+    "bar_value": 16.0,
+    "bar_label": 15.5,
+    "k_axis_label": 15.0,
+    "k_tick_label": 14.0,
+    "k_value_label": 14.5,
+    "cohort_legend": 10.4,
 }
 
 TEXT_POS = {
@@ -45,8 +45,10 @@ TEXT_POS = {
     "panel_d_origin": (0.40 + HALF + 0.36, 5.68),
 }
 
+PANEL_SUB_SIZE = 10.4
+
 STYLE = {
-    "bar_height": 0.60,
+    "bar_height": 0.74,
 }
 
 BAR_H = STYLE["bar_height"]
@@ -60,27 +62,35 @@ def _subhead(ax, x, y, w, label, h=0.38):
 
 
 def _note(ax, x, y, w, h, heading, body):
+    """Side note, centred in its box and shrunk only if it would overflow."""
     rbox(ax, x, y, w, h, fc="#F2F7FC", ec="#D9E6F2", lw=0.9, r=0.10, z=2)
-    end = para(ax, x + 0.16, y + 0.14, heading, w - 0.32,
-               size=TEXT_SIZE["note_heading"],
-               color=INK, weight="bold")
-    para(ax, x + 0.16, end + 0.12, body, w - 0.32,
-         size=TEXT_SIZE["note_body"], color=TEXT)
+    hs, bs = TEXT_SIZE["note_heading"], TEXT_SIZE["note_body"]
+    for _ in range(14):
+        hh = text_height(heading, w - 0.32, hs)
+        bh = text_height(body, w - 0.32, bs)
+        if hh + 0.12 + bh <= h - 0.28:
+            break
+        hs *= 0.95
+        bs *= 0.95
+    yy = y + (h - (hh + 0.12 + bh)) / 2
+    end = para(ax, x + 0.16, yy, heading, w - 0.32, size=hs, color=INK,
+               weight="bold")
+    para(ax, x + 0.16, end + 0.12, body, w - 0.32, size=bs, color=TEXT)
 
 
 def _bar_panel(fig, ax, x0, y0, w, h, letter, title, subtitle, header,
                items, note=None, ylabel_w=1.30):
     panel(ax, x0, y0, w, h, letter=letter, title=title, subtitle=subtitle,
-          sub_size=9.2)
+          sub_size=PANEL_SUB_SIZE)
 
-    note_w = 2.05 if note else 0.0
+    note_w = 2.30 if note else 0.0
     chart_x = x0 + 0.34
     chart_w = w - 0.68 - (note_w + 0.18 if note else 0.0)
 
-    top = _subhead(ax, chart_x, y0 + 1.30, chart_w, header)
+    top = _subhead(ax, chart_x, y0 + 1.24, chart_w, header)
 
     bx, by = chart_x + ylabel_w, top + 0.30
-    bw, bh = chart_w - ylabel_w - 0.55, h - (by - y0) - 0.88
+    bw, bh = chart_w - ylabel_w - 0.60, h - (by - y0) - 0.82
     axb = axes_in(fig, bx, by, bw, bh)
     tidy_axes(axb, grid="x", spines=("bottom",))
     axb.set_xlim(0, 1.0)
@@ -98,7 +108,7 @@ def _bar_panel(fig, ax, x0, y0, w, h, letter, title, subtitle, header,
 
     if note:
         nx = x0 + w - 0.34 - note_w
-        _note(ax, nx, top + 0.18, note_w, h - (top - y0) - 0.60, *note)
+        _note(ax, nx, top + 0.18, note_w, h - (top - y0) - 0.52, *note)
     return axb
 
 
@@ -106,8 +116,9 @@ def panel_a(fig, ax):
     x0, y0 = TEXT_POS["panel_a_origin"]
     w, h = HALF, 4.60
     panel(ax, x0, y0, w, h, letter="A", title="$k$ sensitivity",
-          subtitle="Cluster count changes the separation-stability tradeoff "
-                   "differently in stroke and sepsis", sub_size=9.2)
+          subtitle="Cluster count changes the separation-stability\n"
+                   "tradeoff differently in stroke and sepsis",
+          sub_size=PANEL_SUB_SIZE)
 
     sw = (w - 0.64 - 0.22) / 2
     max_sil = max(max(D.SIL_BY_K["Stroke"]), max(D.SIL_BY_K["Sepsis"]))
@@ -120,9 +131,9 @@ def panel_a(fig, ax):
     ]
 
     for sx, header, data, ylim, yticks, ylab, fmt in specs:
-        top = _subhead(ax, sx, y0 + 1.42, sw, header)
-        axl = axes_in(fig, sx + 0.62, top + 0.24, sw - 0.78,
-                      h - (top - y0) - 1.14)
+        top = _subhead(ax, sx, y0 + 1.34, sw, header)
+        axl = axes_in(fig, sx + 0.66, top + 0.22, sw - 0.80,
+                      h - (top - y0) - 1.06)
         tidy_axes(axl, grid="none", spines=("left", "bottom"))
         axl.set_xlim(1.62, 4.38)
         axl.set_ylim(*ylim)
