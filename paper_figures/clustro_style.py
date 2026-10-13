@@ -121,7 +121,24 @@ def axes_in(fig, x, y, w, h, **kwargs):
 
 
 def save(fig, path, dpi=300):
-    fig.savefig(path, dpi=dpi, facecolor="white", bbox_inches="tight", pad_inches=0.02)
+    """Save a figure, optionally trimming the empty space above its panels.
+
+    Manuscript captions provide figure numbers and titles. Crop only the
+    unused top margin rather than moving data axes or changing plot scales.
+    """
+    crop_top = float(getattr(fig, "_crop_top_inches", 0.0))
+    if crop_top:
+        from matplotlib.transforms import Bbox
+
+        width, height = fig.get_size_inches()
+        if not 0 <= crop_top < height:
+            raise ValueError("Invalid top-margin crop")
+        bbox_inches = Bbox.from_bounds(0, 0, width, height - crop_top)
+    else:
+        bbox_inches = "tight"
+
+    fig.savefig(path, dpi=dpi, facecolor="white", bbox_inches=bbox_inches,
+                pad_inches=0.02)
     plt.close(fig)
     return path
 
