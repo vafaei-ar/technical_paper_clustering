@@ -188,9 +188,24 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
         rbox(ax, sx, sy, sw, sh, fc="white", ec=edge, lw=1.0, r=0.10, z=2)
         rbox(ax, sx, sy, sw, 0.66, fc=fill, ec="none", r=0.10, z=3)
         sbox(ax, sx, sy + 0.48, sw, 0.18, fc=fill, ec="none", z=3)
-        txt(ax, sx + sw / 2, sy + 0.21, name.replace("\n", " "),
-            size=TEXT_SIZE["summary_title"], weight="bold", color=tc, ha="center", z=5)
-        txt(ax, sx + sw / 2, sy + 0.44, f"(n = {n:,})", size=TEXT_SIZE["summary_n"],
+        heading = name.replace("\n", " ")
+        heading_size = TEXT_SIZE["summary_title"]
+        # The longest sepsis heading otherwise runs across card boundaries.
+        for _ in range(18):
+            lines = textwrap.wrap(heading, chars_for(sw - 0.22, fs(heading_size)),
+                                  break_long_words=False)
+            if (len(lines) <= 2 and
+                    max(measure(fig, line, heading_size) for line in lines) <= sw - 0.20):
+                break
+            heading_size *= 0.94
+        if len(lines) == 1:
+            txt(ax, sx + sw / 2, sy + 0.20, lines[0],
+                size=heading_size, weight="bold", color=tc, ha="center", z=5)
+        else:
+            for line_index, line in enumerate(lines):
+                txt(ax, sx + sw / 2, sy + 0.13 + 0.17 * line_index, line,
+                    size=heading_size, weight="bold", color=tc, ha="center", z=5)
+        txt(ax, sx + sw / 2, sy + 0.50, f"(n = {n:,})", size=TEXT_SIZE["summary_n"],
             color=tc, ha="center", z=5)
         ic = {
             "people": ico_people,
