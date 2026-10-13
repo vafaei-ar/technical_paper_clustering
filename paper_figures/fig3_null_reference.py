@@ -235,11 +235,9 @@ def panel_c(fig, ax):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
+    fig._crop_top_inches = 0.48
     top = overlay(fig)
-    title_x, title_y = TEXT_POS["figure_title"]
-    figure_title(
-        ax, title_x, title_y,
-        "Figure 3. Cluster separation relative to Gaussian-copula references", size=TEXT_SIZE["figure_title"])
+    # The manuscript caption supplies the figure number and title.
 
     _null_panel(
         fig, ax, top, 0.40, 0.88, HALF, 5.05, "A", "Stroke",
