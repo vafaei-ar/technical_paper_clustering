@@ -1,5 +1,5 @@
 """
-Figure 4 -- Selected phenotypes reveal distinct profiles in stroke and sepsis.
+Figure 4 -- Descriptive profiles of selected stroke and sepsis partitions.
 
 Each panel is a hand-laid-out heatmap: feature-group gutter, row labels, one
 column per cluster, then a summary card per cluster.
@@ -25,17 +25,17 @@ HALF = (PW - 0.36) / 2
 # --------------------------------------------------------------------------- #
 TEXT_SIZE = {
     "figure_title": 16.5,
-    "row_label": 8.6,
-    "cluster_header": 8.8,
-    "cluster_header_small": 7.8,
-    "cluster_n": 8.0,
-    "group_label": 7.0,
-    "summary_title": 9.0,
-    "summary_n": 8.4,
-    "summary_bullets": 7.8,
+    "row_label": 9.6,
+    "cluster_header": 9.8,
+    "cluster_header_small": 8.6,
+    "cluster_n": 9.0,
+    "group_label": 7.6,
+    "summary_title": 10.0,
+    "summary_n": 9.2,
+    "summary_bullets": 8.6,
     "colorbar_ticks": 12.5,
-    "colorbar_side": 8.6,
-    "colorbar_caption": 8.2,
+    "colorbar_side": 9.6,
+    "colorbar_caption": 9.0,
 }
 
 TEXT_POS = {
@@ -121,14 +121,17 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
         rbox(ax, hx + 0.03, head_y, cw - 0.06, head_h, fc=fill, ec=edge,
              lw=0.9, r=0.08, z=2)
         fsize = TEXT_SIZE["cluster_header"]
-        lines = textwrap.wrap(name.replace("\n", " "),
-                              chars_for(cw - 0.20, fsize))
-        if len(lines) > 2:
-            fsize = TEXT_SIZE["cluster_header_small"]
+        for _ in range(16):
             lines = textwrap.wrap(name.replace("\n", " "),
-                                  chars_for(cw - 0.14, fsize))
-        step = 0.185 * fsize / TEXT_SIZE["cluster_header"]
-        ty = head_y + (head_h - (len(lines) + 1) * step) / 2 + 0.10
+                                  chars_for(cw - 0.20, fs(fsize)),
+                                  break_long_words=False)
+            step = 1.26 * fs(fsize) / 72.0
+            fits_w = max(measure(fig, ln, fsize) for ln in lines) <= cw - 0.16
+            fits_h = (len(lines) + 1) * step <= head_h - 0.14
+            if fits_w and fits_h:
+                break
+            fsize *= 0.94
+        ty = head_y + (head_h - (len(lines) + 1) * step) / 2 + step / 2
         for line in lines:
             txt(ax, hx + cw / 2, ty, line, size=fsize, weight="bold", color=tc,
                 ha="center", z=5)
@@ -147,16 +150,23 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
         icon(ax, x0 + 0.30 + ico_w / 2,
              gy + gh / 2 - (0.19 if gh > 0.62 else 0.13),
              isz, "#4A6076")
-        glines = [
-            ln
-            for raw in gname.split("\n")
-            for ln in textwrap.wrap(raw, chars_for(ico_w - 0.08, fs(TEXT_SIZE["group_label"])))
-        ]
-        ty = gy + gh / 2 + 0.06 - 0.075 * (len(glines) - 2)
+        gsize = TEXT_SIZE["group_label"]
+        for _ in range(10):
+            wrapped = [ln for raw in gname.split("\n")
+                       for ln in (textwrap.wrap(raw, chars_for(ico_w - 0.08,
+                                                               fs(gsize)),
+                                                break_long_words=False)
+                                  or [""])]
+            if max(measure(fig, ln, gsize) for ln in wrapped) <= ico_w - 0.10:
+                break
+            gsize *= 0.94
+        glines = wrapped
+        gstep = 1.28 * fs(gsize) / 72.0
+        ty = gy + gh / 2 + 0.08 - gstep * (len(glines) - 2) / 2
         for line in glines:
-            txt(ax, x0 + 0.30 + ico_w / 2, ty, line, size=TEXT_SIZE["group_label"],
+            txt(ax, x0 + 0.30 + ico_w / 2, ty, line, size=gsize,
                 color="#3F5468", ha="center", weight="bold", z=5)
-            ty += 0.155
+            ty += gstep
 
         for rl, vals in grows:
             ry = body_y + r_i * rh
@@ -190,7 +200,18 @@ def _heat_panel(fig, ax, x0, y0, w, h, letter, cohort, subtitle, clusters, group
             "blood": ico_blood_cell,
         }[icon_key]
         ic(ax, sx + 0.36, sy + 0.96, 0.32, tc)
-        bullets(ax, sx + 0.16, sy + 1.18, items, sw - 0.34, size=TEXT_SIZE["summary_bullets"],
+        # Keep every summary bullet inside its card, including the fourth
+        # item in the sepsis eosinophil-lymphocyte group.
+        bsize = TEXT_SIZE["summary_bullets"]
+        for _ in range(20):
+            required_h = sum(
+                text_height(item, sw - 0.34 - 0.16, bsize, 1.28) + 0.035
+                for item in items
+            )
+            if required_h <= sh - 1.34:
+                break
+            bsize *= 0.94
+        bullets(ax, sx + 0.16, sy + 1.18, items, sw - 0.34, size=bsize,
                 color=TEXT, dot_color=tc, leading=1.28, gap=0.035)
 
 
@@ -238,7 +259,7 @@ def build(outdir="."):
         ax,
         title_x,
         title_y,
-        "Figure 4. Selected phenotypes reveal distinct profiles in stroke and sepsis",
+        "Figure 4. Descriptive profiles of selected stroke and sepsis partitions",
         size=TEXT_SIZE["figure_title"],
     )
 
