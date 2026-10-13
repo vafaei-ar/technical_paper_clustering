@@ -269,14 +269,8 @@ def colorbar(fig, ax, y):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
-    title_x, title_y = TEXT_POS["figure_title"]
-    figure_title(
-        ax,
-        title_x,
-        title_y,
-        "Figure 4. Descriptive profiles of selected stroke and sepsis partitions",
-        size=TEXT_SIZE["figure_title"],
-    )
+    fig._crop_top_inches = 0.48
+    # The manuscript caption supplies the figure number and title.
 
     _heat_panel(
         fig, ax, 0.40, 0.88, HALF, 9.44, "A", "Stroke",
