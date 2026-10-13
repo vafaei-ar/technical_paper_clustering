@@ -1,9 +1,8 @@
 """
-Figure 3 -- Null-reference benchmarking distinguishes robust structure from
-plausible artifacts.
+Figure 3 -- Observed cluster separation compared with Gaussian-copula references.
 
 Panels A/B: observed silhouette against the Gaussian-copula null distribution.
-Panel C: decision map (separation vs reproducibility) + key takeaways.
+Panel C: illustrative separation-versus-stability decision map.
 """
 from __future__ import annotations
 
@@ -14,7 +13,7 @@ import numpy as np
 from clustro_style import *
 import clustro_data as D
 
-W, H = 15.0, 11.60
+W, H = 15.0, 11.95
 PW = W - 0.80
 HALF = (PW - 0.36) / 2
 
@@ -30,32 +29,32 @@ TEXT_SIZE = {
     "axis_label": 15.6,
     "null_label": 13.8,
     "observed_label": 14.1,
-    "replicate_note": 9.2,
-    "verdict": 8.8,
-    "legend": 8.6,
+    "replicate_note": 11.0,
+    "verdict": 9.8,
+    "legend": 9.8,
     "decision_header": 12.5,
     "decision_col_header": 11.5,
     "decision_vertical_axis": 11.5,
     "decision_side_main": 11.0,
     "decision_side_small": 10.0,
     "decision_cell_title": 17.0,
-    "decision_cell_subtitle": 12.0,
-    "decision_marker_label": 13.0,
-    "decision_bottom_label": 10.5,
+    "decision_cell_subtitle": 13.0,
+    "decision_marker_label": 14.0,
+    "decision_bottom_label": 11.5,
     "decision_bottom_title": 12.5,
 }
 
 TEXT_POS = {
     "figure_title": (0.42, 0.48),
-    "stroke_note_x": 0.615,
-    "sepsis_note_x": 0.605,
+    "stroke_note_x": 0.655,
+    "sepsis_note_x": 0.635,
     "decision_grid_x_offset": 2.05,
     "decision_header_y_offset": 1.00,
     "decision_col_header_y_offset": 1.28,
     "decision_vertical_axis_x_offset": 0.78,
     "decision_side_label_x_offset": 1.56,
-    "decision_bottom_y_offset": 0.36,
-    "decision_bottom_title_y_offset": 0.10,
+    "decision_bottom_y_offset": 0.65,
+    "decision_bottom_title_y_offset": 0.30,
 }
 
 NULL_FILL = "#C8D6E4"
@@ -91,33 +90,44 @@ def _null_panel(fig, ax_c, ax_top, x0, y0, w, h, letter, cohort, subtitle, spec,
             ls=(0, (5, 3)), lw=2.0, zorder=5)
 
     ax.text(spec["mean"], ymax * 0.845, f"Null mean = {spec['mean']:.3f}",
-            ha="center", va="bottom", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
-    ax.text(spec["mean"], ymax * 0.835, "(Gaussian-copula)", ha="center",
+            ha="right" if spec["mean"] < spec["observed"] else "left", va="bottom", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
+    ax.text(spec["mean"], ymax * 0.835, "(Gaussian-copula)",
+            ha="right" if spec["mean"] < spec["observed"] else "left",
             va="top", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
     ax.text(spec["observed"] + obs_dx, ymax * 0.845,
-            f"Observed = {spec['observed']:.3f}", ha="center", va="bottom",
+            f"Observed = {spec['observed']:.3f}",
+            ha="left" if spec["mean"] < spec["observed"] else "right", va="bottom",
             fontsize=TEXT_SIZE["observed_label"], color=obs_color, weight="bold", zorder=6)
 
-    nx, ny = px + note_x * pw, py + 0.80
     segments = [
-        [(f"{spec['n_ge']}/{spec['n_rep']}", "bold"), (" null replicates", "normal")],
-        [(">= observed", "normal")],
-        [("empirical p = ", "normal"), (f"{spec['p']:.3f}", "bold")],
+        [(f"{spec['n_ge']}/{spec['n_rep']}", "bold"),
+         (" references >= observed", "normal")],
+        [("upper-tail p = ", "normal"), (f"{spec['p']:.3f}", "bold")],
     ]
+    nsize = TEXT_SIZE["replicate_note"]
+    widest = max(sum(measure(fig, piece, nsize, wt) for piece, wt in line)
+                 for line in segments)
+    # keep the note inside the plot area however wide the text gets
+    nx = px + min(note_x * pw, pw - widest - 0.06)
+    ny = py + 1.10
     for line in segments:
         cx = nx
         for piece, wt in line:
-            txt(ax_top, cx, ny, piece, size=TEXT_SIZE["replicate_note"], color=TEXT, weight=wt)
-            cx += measure(fig, piece, TEXT_SIZE["replicate_note"], wt)
-        ny += 0.215
+            txt(ax_top, cx, ny, piece, size=nsize, color=TEXT, weight=wt)
+            cx += measure(fig, piece, nsize, wt)
+        ny += 1.42 * fs(nsize) / 72.0
 
-    bw, bh = 2.40, 0.95
-    bx, by = x0 + w - bw - 0.34, y0 + 2.42
+    bw = 3.35
+    bh = max(0.90, text_height(verdict, bw - 0.84, TEXT_SIZE["verdict"]) + 0.40)
+    # anchored to the bottom-right of the plot box, clear of the note above
+    bx = x0 + w - bw - 0.34
+    by = max(ny + 0.16, py + 1.30)
+    by = min(by, py + ph - bh - 0.22)
     rbox(ax_top, bx, by, bw, bh, fc=verdict_fill, ec=verdict_edge, lw=1.1,
          r=0.10, z=2)
     verdict_icon(ax_top, bx + 0.32, by + bh / 2, 0.32)
-    block_h = text_height(verdict, bw - 0.76, TEXT_SIZE["verdict"])
-    para(ax_top, bx + 0.60, by + (bh - block_h) / 2, verdict, bw - 0.76,
+    block_h = text_height(verdict, bw - 0.84, TEXT_SIZE["verdict"])
+    para(ax_top, bx + 0.64, by + (bh - block_h) / 2, verdict, bw - 0.84,
          size=TEXT_SIZE["verdict"], color=verdict_color, weight="bold", z=7)
 
     ly = y0 + h - 0.38
@@ -143,7 +153,7 @@ def _null_panel(fig, ax_c, ax_top, x0, y0, w, h, letter, cohort, subtitle, spec,
 
 
 def panel_c(fig, ax):
-    x0, y0, w, h = 0.40, 5.72, PW, 5.48
+    x0, y0, w, h = 0.40, 6.07, PW, 5.48
     panel(ax, x0, y0, w, h, letter="C",
           title="Decision map: separation vs reproducibility")
 
@@ -163,7 +173,7 @@ def panel_c(fig, ax):
 
     for x, label in zip(
         col_x,
-        ("High (better than null)", "Null-like (no better than null)")
+        ("Above reference", "Not above reference")
     ):
         txt(ax, x + cw / 2, y0 + TEXT_POS["decision_col_header_y_offset"], label,
             size=TEXT_SIZE["decision_col_header"], weight="bold", color=TEXT, ha="center", z=5)
@@ -185,13 +195,13 @@ def panel_c(fig, ax):
             size=TEXT_SIZE["decision_side_small"], color=MUTED, ha="right", z=5)
 
     cells = [
-        (0, 0, "Promising", "Higher than null\nand stable",
+        (0, 0, "Check robustness", "Above reference\nand stable",
          FILL_GREEN, "#9AD3B7", "#1B7A50", ("Stroke", BLUE)),
-        (0, 1, "Caution", "Null-like separation\nbut stable",
+        (0, 1, "Interpret cautiously", "Below reference\nbut stable",
          FILL_ORANGE, "#F0C089", "#D9821B", ("Sepsis", ORANGE)),
-        (1, 0, "Unstable", "Higher than null\nbut unstable",
+        (1, 0, "Unstable", "Above reference\nbut unstable",
          "#FDE7E9", "#F3BFC5", RED, None),
-        (1, 1, "Reject", "Null-like separation\nand unstable",
+        (1, 1, "Weak evidence", "Not above reference\nand unstable",
          FILL_RED, EDGE_RED, RED, None),
     ]
 
@@ -213,9 +223,9 @@ def panel_c(fig, ax):
             txt(ax, x + cw / 2 - 0.30, y + hh - 0.30, label,
                 size=TEXT_SIZE["decision_marker_label"], weight="bold", color=mcol, z=5)
 
-    txt(ax, grid_x, y0 + h - TEXT_POS["decision_bottom_y_offset"], "Higher than null",
+    txt(ax, grid_x, y0 + h - TEXT_POS["decision_bottom_y_offset"], "Above reference",
         size=TEXT_SIZE["decision_bottom_label"], weight="bold", color=TEXT, ha="left")
-    txt(ax, grid_x + grid_w, y0 + h - TEXT_POS["decision_bottom_y_offset"], "Null-like",
+    txt(ax, grid_x + grid_w, y0 + h - TEXT_POS["decision_bottom_y_offset"], "Not above reference",
         size=TEXT_SIZE["decision_bottom_label"], weight="bold", color=TEXT, ha="right")
     txt(ax, grid_x + grid_w / 2, y0 + h - TEXT_POS["decision_bottom_title_y_offset"],
         "Separation vs. null reference",
@@ -229,11 +239,10 @@ def build(outdir="."):
     title_x, title_y = TEXT_POS["figure_title"]
     figure_title(
         ax, title_x, title_y,
-        "Figure 3. Null-reference benchmarking distinguishes robust structure "
-        "from plausible artifacts.", size=TEXT_SIZE["figure_title"])
+        "Figure 3. Cluster separation relative to Gaussian-copula references", size=TEXT_SIZE["figure_title"])
 
     _null_panel(
-        fig, ax, top, 0.40, 0.88, HALF, 4.70, "A", "Stroke",
+        fig, ax, top, 0.40, 0.88, HALF, 5.05, "A", "Stroke",
         "Observed separation exceeds null reference", D.NULL_STROKE,
         obs_color="#1C7BD4",
         verdict="Observed separation exceeds null reference",
@@ -245,7 +254,7 @@ def build(outdir="."):
     )
 
     _null_panel(
-        fig, ax, top, 0.40 + HALF + 0.36, 0.88, HALF, 4.70, "B", "Sepsis",
+        fig, ax, top, 0.40 + HALF + 0.36, 0.88, HALF, 5.05, "B", "Sepsis",
         "Observed separation does not exceed null reference", D.NULL_SEPSIS,
         obs_color="#E8501E",
         verdict="Observed separation does not exceed null reference",
