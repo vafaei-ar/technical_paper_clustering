@@ -273,8 +273,19 @@ def panel(ax, x, y, w, h, letter=None, title=None, subtitle=None,
     if title is not None:
         txt(ax, tx, cy + 0.20, title, size=title_size, weight="bold", color=INK)
     if subtitle is not None:
-        txt(ax, tx, cy + 0.56, subtitle, size=sub_size, color=MUTED)
-        return cy + 0.80
+        # wrap to the panel width so a long subtitle can never run past the
+        # panel edge (explicit newlines are honoured, then wrapped again)
+        avail = w - (tx - x) - pad
+        eff = fs(sub_size)
+        lines = [ln for raw in subtitle.split("\n")
+                 for ln in (textwrap.wrap(raw, chars_for(avail, eff),
+                                          break_long_words=False) or [""])]
+        dy = 1.30 * eff / 72.0
+        yy = cy + 0.46
+        for line in lines:
+            txt(ax, tx, yy + dy / 2, line, size=sub_size, color=MUTED)
+            yy += dy
+        return yy + 0.06
     return cy + 0.52
 
 
