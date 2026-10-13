@@ -528,13 +528,8 @@ def build(outdir="."):
     PANEL_BC["h"] = max(TEXT_POS["panel_bc_h"], panel_b_height(), panel_c_height())
     fig_h = max(H, PANEL_BC["y0"] + PANEL_BC["h"] + 0.40)
     fig, ax = canvas(W, fig_h)
-    title_x, title_y = TEXT_POS["figure_title"]
-    figure_title(ax, title_x, title_y, "Figure 1. Clustro workflow and decision logic",
-                 size=TEXT_SIZE["figure_title"])
-    panel_a(fig, ax)
-    panel_b(fig, ax)
-    panel_c(fig, ax)
-    return save(fig, os.path.join(outdir, "fig1_workflow.png"))
+    fig._crop_top_inches = 0.48
+    # The manuscript caption supplies the figure number and title.
 
 
 if __name__ == "__main__":
