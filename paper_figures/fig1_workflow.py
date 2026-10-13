@@ -194,7 +194,7 @@ def panel_a(fig, ax):
     x = xs[2]
     yy = _card_header(ax, x, cy, cw, 3, "Candidate model grid", tw) + 0.04
     minis = [
-        ("Raw / PCA", "(two feature spaces)",
+        ("Raw / PCA", "(2 spaces)",
          lambda a_, cx, cyy, s_: ico_scatter(a_, cx, cyy, s_, BLUE, 16, 3, 0.42)),
         ("K-means", "(k = 2 to 10)",
          lambda a_, cx, cyy, s_: ico_clusters(a_, cx, cyy, s_ * 0.95)),
@@ -390,6 +390,18 @@ def panel_b(fig, ax):
             ha="center", z=5)
         cy += 0.20
 
+    # Use the lower portion of the comparison panel for the possible
+    # audit outcomes rather than leaving it empty when panel C is taller.
+    foot_y = y0 + h - 1.16
+    if foot_y > cy + 0.20:
+        rbox(ax, lx, foot_y, w - 0.64, 0.82, fc=FILL_GRAY,
+             ec=EDGE_GRAY, lw=0.7, r=0.08, z=2)
+        para(ax, lx + 0.20, foot_y + 0.16,
+             "An audit may retain, qualify, or reject a candidate partition."
+             " It does not validate clinical subtypes.",
+             w - 1.00, size=TEXT_SIZE["panel_b_note"],
+             color=TEXT, leading=1.25)
+
 
 def _grid_icon(ax, cx, cy, s):
     w = 0.95 * s
@@ -433,7 +445,7 @@ def panel_c_height():
     """Total panel height panel C needs with the current text sizes."""
     cw = (HALF - TEXT_POS["decision_grid_x_offset"] - 0.32 - 0.16) / 2
     rh = _decision_row_heights(cw)
-    return 1.44 + rh[0] + 0.10 + rh[1] + 0.28 + 1.23
+    return 1.44 + rh[0] + 0.10 + rh[1] + 0.28 + 1.95
 
 
 def panel_c(fig, ax):
