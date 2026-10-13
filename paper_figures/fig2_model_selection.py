@@ -215,10 +215,8 @@ def legend_strip(fig, ax):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
-    title_x, title_y = TEXT_POS["figure_title"]
-    figure_title(ax, title_x, title_y,
-                 "Figure 2. Model-selection landscape and selected solutions",
-                 size=TEXT_SIZE["figure_title"])
+    fig._crop_top_inches = 0.48
+    # The manuscript caption supplies the figure number and title.
 
     s4 = D.point(D.STROKE_CANDIDATES, "PCA k-means", 4)
     s3 = D.point(D.STROKE_CANDIDATES, "PCA k-means", 3)
