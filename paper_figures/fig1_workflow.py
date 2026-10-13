@@ -530,6 +530,10 @@ def build(outdir="."):
     fig, ax = canvas(W, fig_h)
     fig._crop_top_inches = 0.48
     # The manuscript caption supplies the figure number and title.
+    panel_a(fig, ax)
+    panel_b(fig, ax)
+    panel_c(fig, ax)
+    return save(fig, os.path.join(outdir, "fig1_workflow.png"))
 
 
 if __name__ == "__main__":
