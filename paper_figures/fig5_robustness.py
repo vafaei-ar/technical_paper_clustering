@@ -153,12 +153,16 @@ def panel_a(fig, ax):
             ys = data[cohort]
             axl.plot(D.K_GRID, ys, "-o", color=color, lw=1.8, ms=7,
                      markeredgecolor="white", markeredgewidth=0.8, zorder=5)
-            for k, v in zip(D.K_GRID, ys):
-                off = 0.055 * (ylim[1] - ylim[0]) if cohort == "Stroke" \
-                    else -0.075 * (ylim[1] - ylim[0])
+            competing = data["Sepsis" if cohort == "Stroke" else "Stroke"]
+            for index, (k, v) in enumerate(zip(D.K_GRID, ys)):
+                # Label the higher series above and the lower series below.
+                # Fixed cohort-specific offsets collide when their order swaps.
+                above = v >= competing[index]
+                off = (0.065 if above else -0.065) * (ylim[1] - ylim[0])
                 axl.annotate(fmt % v, (k, v + off), ha="center",
-                             va="bottom" if cohort == "Stroke" else "top",
-                             fontsize=TEXT_SIZE["k_value_label"], color=color, weight="bold", zorder=6)
+                             va="bottom" if above else "top",
+                             fontsize=TEXT_SIZE["k_value_label"], color=color,
+                             weight="bold", zorder=6)
 
     ly = y0 + h - 0.16
     lx = x0 + (w - 4.90) / 2
