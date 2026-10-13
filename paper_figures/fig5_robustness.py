@@ -179,12 +179,8 @@ def panel_a(fig, ax):
 def build(outdir="."):
     use_style()
     fig, ax = canvas(W, H)
-    title_x, title_y = TEXT_POS["figure_title"]
-    figure_title(
-        ax, title_x, title_y,
-        "Figure 5. Robustness differs across clustering specifications",
-        size=TEXT_SIZE["figure_title"],
-    )
+    fig._crop_top_inches = 0.48
+    # The manuscript caption supplies the figure number and title.
 
     panel_a(fig, ax)
 
