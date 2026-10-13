@@ -156,15 +156,14 @@ def panel_c(fig, ax):
     hs = TEXT_SIZE["rationale_explainer_title"]
     bs = TEXT_SIZE["rationale_explainer_body"]
     for _ in range(14):                     # fit, then centre in the box
-        hh = max(0.44, text_height(head, iw - 0.56, hs))
+        hh = max(0.44, text_height(head, iw - 0.28, hs))
         bh = text_height(body, iw - 0.28, bs)
         if hh + 0.16 + bh <= ibox_h - 0.30:
             break
         hs *= 0.95
         bs *= 0.95
     yy = top + (ibox_h - (hh + 0.16 + bh)) / 2
-    ico_gear(ax, ix + 0.22, yy + 0.20, 0.30, "#40536B")
-    para(ax, ix + 0.44, yy, head, iw - 0.56, size=hs, color=INK, weight="bold")
+    para(ax, ix + 0.14, yy, head, iw - 0.28, size=hs, color=INK, weight="bold")
     para(ax, ix + 0.14, yy + hh + 0.16, body, iw - 0.28, size=bs, color=TEXT)
 
 
