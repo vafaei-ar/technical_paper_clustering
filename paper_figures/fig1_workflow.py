@@ -518,6 +518,11 @@ def panel_c(fig, ax):
 
 def build(outdir="."):
     use_style()
+    # Preserve editable TrueType glyph outlines in vector PDF/EPS exports.
+    # Matplotlib's default PDF Type 3 fonts are unsuitable for many journals.
+    import matplotlib as mpl
+    mpl.rcParams["pdf.fonttype"] = 42
+    mpl.rcParams["ps.fonttype"] = 42
     # panels B and C share a height: take whichever needs more, then size the
     # canvas to fit it, so text can grow without ever colliding.
     PANEL_BC["h"] = max(TEXT_POS["panel_bc_h"], panel_b_height(), panel_c_height())
