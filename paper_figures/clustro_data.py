@@ -302,7 +302,7 @@ def _bin(frame, *aliases):
 
 
 STROKE_CLUSTERS = [
-    ("Preserved\nhematologic", _stroke_n[0], "blue"),
+    ("Lower-\ncomorbidity", _stroke_n[0], "blue"),
     ("Renal-anemic", _stroke_n[1], "orange"),
     ("Hyperglycemic", _stroke_n[2], "red"),
 ]
@@ -378,8 +378,17 @@ K_GRID = [2, 3, 4]
 K_SELECTED = 3
 
 
-def _pca_k_values(cohort: str, column: str) -> list[float]:
-    df = _read_csv(f"tableS_candidate_model_audit_{cohort}.csv")
+def _pca_k_values(
+    cohort: str, column: str, *, reference_seed: bool = False
+) -> list[float]:
+    # Figure 5A displays the selected/reference-seed sensitivity analysis,
+    # not the five-seed candidate-screening averages displayed in Figure 2.
+    filename = (
+        f"representation_k_sensitivity_{cohort}.csv"
+        if reference_seed
+        else f"tableS_candidate_model_audit_{cohort}.csv"
+    )
+    df = _read_csv(filename)
     q = df[
         df["reduction"].astype(str).str.lower().eq("pca")
         & df["clusterer"].astype(str).str.lower().eq("kmeans")
@@ -389,8 +398,8 @@ def _pca_k_values(cohort: str, column: str) -> list[float]:
 
 
 SIL_BY_K = {
-    "Stroke": _pca_k_values("stroke", "silhouette_mean"),
-    "Sepsis": _pca_k_values("sepsis", "silhouette_mean"),
+    "Stroke": _pca_k_values("stroke", "silhouette", reference_seed=True),
+    "Sepsis": _pca_k_values("sepsis", "silhouette", reference_seed=True),
 }
 ARI_BY_K = {
     "Stroke": _pca_k_values("stroke", "mean_subsample_ari"),

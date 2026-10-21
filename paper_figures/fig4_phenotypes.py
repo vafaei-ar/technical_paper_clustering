@@ -70,7 +70,7 @@ GROUP_ICONS = {
 
 SUMMARY = {
     "Stroke": [
-        ("Preserved hematologic", D.STROKE_CLUSTERS[0][1], "blue", "people",
+        ("Lower-comorbidity", D.STROKE_CLUSTERS[0][1], "blue", "people",
          ["Near-normal hematologic profile", "Lower comorbidity burden",
           "Lower glucose and creatinine"]),
         ("Renal-anemic", D.STROKE_CLUSTERS[1][1], "orange", "kidneys",
