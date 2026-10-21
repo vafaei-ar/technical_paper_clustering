@@ -102,7 +102,7 @@ def _null_panel(fig, ax_c, ax_top, x0, y0, w, h, letter, cohort, subtitle, spec,
     segments = [
         [(f"{spec['n_ge']}/{spec['n_rep']}", "bold"),
          (" references >= observed", "normal")],
-        [("upper-tail p = ", "normal"), (f"{spec['p']:.3f}", "bold")],
+        [("upper-tail proportion = ", "normal"), (f"{spec['p']:.3f}", "bold")],
     ]
     nsize = TEXT_SIZE["replicate_note"]
     widest = max(sum(measure(fig, piece, nsize, wt) for piece, wt in line)
