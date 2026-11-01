@@ -34,6 +34,27 @@ No local server is needed. Open or download the PNG/PDF files directly from:
 results/final_paper_figures_v4/
 ```
 
+## Co-author correction of Figures 4 and 5 (v8.6.7)
+
+Use the checked regeneration command on the research computer with the existing
+private aggregate analysis outputs. This command reads the original reported
+cluster sizes, selected-run silhouette results, and phenotype profile tables,
+then stops if those inputs are missing or inconsistent with the manuscript.
+It never generates mock results or refits clustering.
+
+```bash
+python scripts/regenerate_figures_4_5_checked.py --verify-only --check-frozen-hashes
+python scripts/regenerate_figures_4_5_checked.py --check-frozen-hashes
+```
+
+The second command writes `fig4_phenotypes.png/.pdf`,
+`fig5_robustness.png/.pdf`, and
+`figure_source_manifest_v867.json` into
+`results/final_paper_figures_v867/`. The manifest includes SHA-256 fingerprints
+for the source aggregate tables and generated figures. Do not check patient-level
+input files into Git. The manuscript images should only be replaced after
+checking the regenerated output against Tables 2, S6, and S7.
+
 ## Data sources
 
 The figure code reads the existing analysis outputs rather than synthetic placeholders:
