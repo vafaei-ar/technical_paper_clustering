@@ -115,12 +115,12 @@ def panel_c(fig, ax):
         (x0 + 0.30, 5.62, FILL_BLUE,
          "Stroke: $k$ = 3, separation-stability compromise",
          [("$k$ = 4", ["Higher stability (ARI)", "Lower separation"], False),
-          ("$k$ = 3 (selected)", ["Good separation", "High stability", "Balanced solution"], True),
+          ("$k$ = 3 (selected)", ["Limited absolute separation", "High stability", "Balanced solution"], True),
           ("$k$ = 2", ["Higher separation", "Similar stability"], False)]),
         (x0 + 6.18, 5.22, FILL_ORANGE,
          "Sepsis: $k$ = 3, most reproducible compromise",
          [("$k$ = 2", ["Lower stability", "Unstable lower tail"], False),
-          ("$k$ = 3 (selected)", ["High stability", "Good separation", "Strong worst-case stability"], True),
+          ("$k$ = 3 (selected)", ["High stability", "Limited absolute separation", "Strong worst-case stability"], True),
           ("$k$ = 4", ["Slightly higher separation", "Lower worst-case robustness"], False)]),
     ]
 
@@ -189,7 +189,8 @@ def legend_strip(fig, ax):
         color=INK, va="center")
     x += measure(fig, "Model family (marker shape)", size, "bold") + 0.34
     for fam, k in fams:
-        ax.plot([x], [cy], marker=FAMILY_MARKER[fam], ms=9, color=K_COLOR[k],
+        # Marker shape represents family; neutral color avoids implying a k value.
+        ax.plot([x], [cy], marker=FAMILY_MARKER[fam], ms=9, color="#6B7280",
                 zorder=5, markeredgecolor="white", markeredgewidth=0.6)
         txt(ax, x + 0.20, cy, fam, size=size, color=TEXT)
         x += measure(fig, fam, size) + 0.52
