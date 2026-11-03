@@ -37,13 +37,14 @@ def clean_ids(df: pd.DataFrame, name: str, key: str) -> pd.DataFrame:
     return df
 
 
-def add_labels(base: pd.DataFrame, path: Path, key: str, label_col: str,
-               display: str) -> pd.DataFrame:
-    labels = clean_ids(load(path, [key, label_col]), display, key)
+def add_labels(base: pd.DataFrame, path: Path, base_key: str, labels_key: str,
+               label_col: str, display: str) -> pd.DataFrame:
+    labels = clean_ids(load(path, [labels_key, label_col]), display, labels_key)
+    labels = labels.rename(columns={labels_key:base_key})
     labels[label_col] = labels[label_col].astype("string")
     if labels[label_col].isna().any():
         raise ValueError(f"{display} has missing cluster labels")
-    overlap = base[[key]].merge(labels, how="left", on=key, validate="one_to_one")
+    overlap = base[[base_key]].merge(labels, how="left", on=base_key, validate="one_to_one")
     if overlap[label_col].isna().any():
         raise ValueError(f"{display} lacks labels for {int(overlap[label_col].isna().sum())} cohort patients")
     return overlap
@@ -97,14 +98,12 @@ def main() -> int:
         if not args.technical_label_column or not args.clinical_label_column:
             raise ValueError("Specify --technical-label-column and --clinical-label-column")
         tl = add_labels(technical[[args.id_col]], args.technical_labels,
-                        args.technical_label_id_column, args.technical_label_column, "technical labels")
+                        args.id_col, args.technical_label_id_column, args.technical_label_column, "technical labels")
         cl = add_labels(clinical[[args.id_col]], args.clinical_labels,
-                        args.clinical_label_id_column, args.clinical_label_column, "clinical labels")
+                        args.id_col, args.clinical_label_id_column, args.clinical_label_column, "clinical labels")
         # Normalize label-file identifier names before joining.
-        tl = tl.rename(columns={args.technical_label_id_column:args.id_col,
-                                args.technical_label_column:"technical_cluster"})
-        cl = cl.rename(columns={args.clinical_label_id_column:args.id_col,
-                                args.clinical_label_column:"clinical_cluster"})
+        tl = tl.rename(columns={args.technical_label_column:"technical_cluster"})
+        cl = cl.rename(columns={args.clinical_label_column:"clinical_cluster"})
         joint = tl.merge(cl, how="inner", on=args.id_col, validate="one_to_one")
         from sklearn.metrics import adjusted_rand_score
         result["shared_labeled_n"] = len(joint)
