@@ -24,10 +24,10 @@ HALF = (PW - 0.36) / 2
 TEXT_SIZE = {
     "figure_title": 18.0,
     "axis_label": 16.4,
-    "point_label": 14.5,
-    "callout": 12.6,
-    "rationale_heading": 11.0,
-    "rationale_box_title": 10.6,
+    "point_label": 12.2,
+    "callout": 11.2,
+    "rationale_heading": 10.0,
+    "rationale_box_title": 9.6,
     "rationale_bullets": 9.6,
     "rationale_explainer_title": 9.8,
     "rationale_explainer_body": 9.6,
@@ -36,14 +36,14 @@ TEXT_SIZE = {
 
 TEXT_POS = {
     "figure_title": (0.42, 0.50),
-    "stroke_k4_box": (0.1305, 0.760),
+    "stroke_k4_box": (0.1400, 0.725),
     "stroke_selected_box": (0.1585, 0.625),
     "stroke_k2_box": (0.2030, 0.760),
     "stroke_agglomerative_box": (0.2270, 0.360),
     "sepsis_selected_box": (0.1653, 0.910),
     "sepsis_k4_box": (0.1762, 0.885),
     "sepsis_k2_box": (0.1638, 0.840),
-    "point_label_offset": (11, -9),
+    "point_label_offset": (8, -13),
 }
 
 SHOW = {
@@ -84,6 +84,7 @@ def _scatter_panel(fig, ax_c, x0, y0, w, h, letter, title, candidates, selected,
                   labelpad=6)
 
     annotated_xy = [ann["xy"] for ann in annotations]
+    sel = [c for c in candidates if (c[0], c[1]) == selected][0]
     for fam, k, sil, ari in candidates:
         ax.scatter(sil, ari, marker=FAMILY_MARKER[fam], s=95,
                    color=K_COLOR[k], edgecolors="white", linewidths=0.6,
@@ -92,7 +93,10 @@ def _scatter_panel(fig, ax_c, x0, y0, w, h, letter, title, candidates, selected,
             abs(sil - xy[0]) < 1e-10 and abs(ari - xy[1]) < 1e-10
             for xy in annotated_xy
         )
-        if not has_callout:
+        # The selected star and nearby model-family marker should not carry
+        # colliding k=3 labels. The color/shape legend already identifies them.
+        near_selected = (k == 3 and abs(sil - sel[2]) < 0.020 and abs(ari - sel[3]) < 0.06)
+        if not has_callout and not near_selected:
             ax.annotate(f"$k$ = {k}", (sil, ari), textcoords="offset points",
                         xytext=TEXT_POS["point_label_offset"], fontsize=TEXT_SIZE["point_label"], color=TEXT, zorder=7)
 
@@ -113,14 +117,14 @@ def panel_c(fig, ax):
     box_y, box_h = top + 0.60, 2.16
     groups = [
         (x0 + 0.30, 5.62, FILL_BLUE,
-         "Stroke: $k$ = 3, separation-stability compromise",
+         "Stroke: $k$ = 3 balances separation and stability",
          [("$k$ = 4", ["Higher stability (ARI)", "Lower separation"], False),
-          ("$k$ = 3 (selected)", ["Limited absolute separation", "High stability", "Balanced solution"], True),
+          ("$k$ = 3", ["Limited absolute separation", "High stability", "Balanced solution"], True),
           ("$k$ = 2", ["Higher separation", "Similar stability"], False)]),
         (x0 + 6.18, 5.22, FILL_ORANGE,
-         "Sepsis: $k$ = 3, most reproducible compromise",
+         "Sepsis: $k$ = 3 favors reproducibility",
          [("$k$ = 2", ["Lower stability", "Unstable lower tail"], False),
-          ("$k$ = 3 (selected)", ["High stability", "Limited absolute separation", "Strong worst-case stability"], True),
+          ("$k$ = 3", ["High stability", "Limited absolute separation", "Strong worst-case stability"], True),
           ("$k$ = 4", ["Slightly higher separation", "Lower worst-case robustness"], False)]),
     ]
 
@@ -270,8 +274,8 @@ def build(outdir="."):
         fig, ax, 0.40 + HALF + 0.36, 0.90, HALF, 4.78, "B", "Sepsis",
         D.SEPSIS_CANDIDATES, D.SEPSIS_SELECTED,
         xlim=(0.1555, 0.1795), ylim=(0.800, 1.000),
-        xticks=[0.1575, 0.1600, 0.1625, 0.1650, 0.1675, 0.1700, 0.1725,
-                0.1750, 0.1775],
+        # A sparse axis remains legible at the manuscript's printed width.
+        xticks=[0.158, 0.163, 0.168, 0.173, 0.178],
         yticks=[0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96, 0.98],
         annotations=sepsis_annotations,
     )
