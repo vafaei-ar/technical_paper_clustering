@@ -96,3 +96,41 @@ STYLE["heat_cell_lw"] = 0.70
 ```
 
 The shared `clustro_style.py` file still contains `FONT_SCALE`, which scales text across the whole figure set.
+
+
+## Co-author figure export and cohort identity checks (November 2026)
+
+The paper's figure corrections are applied **only in plotting code**. They must
+be regenerated against the verified local analytic outputs. Do not hand-edit
+scientific figures, reuse stale PNGs, or substitute fabricated data.
+
+```bash
+python scripts/regenerate_all_figures_checked.py --verify-only
+python scripts/regenerate_all_figures_checked.py --dpi 600
+```
+
+The script verifies the two study Parquet SHA-256 fingerprints, cluster sizes,
+selected-run silhouettes, aggregate profile tables, and source files. It writes
+600-DPI PNGs, vector PDFs, and `figure_source_manifest_v8610.json` to
+`results/final_paper_figures_v8610/`. Inspect the five figures and replace
+their images in the manuscript only after visual and numerical QA.
+
+The clinical ischemic-stroke paper has a 7,688-patient Penn State cohort,
+compared with the 9,835-patient broad stroke cohort in this paper. Its cohort
+logic audit documents ischemic-only (7,688), hemorrhagic-only (40), dual-coded
+(2,023), and neither (84) categories in a 9,835-person harmonized source.
+To verify the two studies use exactly the same patient IDs, run the separate
+aggregate-only audit with the actual local inputs (examples below). ARI requires
+label files containing explicit PATID columns. It is not valid to align
+labels by row order.
+
+```bash
+python scripts/check_stroke_cohort_overlap.py \
+  --technical-cohort data/stroke/stroke_cohort_imputed.parquet \
+  --clinical-cohort /ABSOLUTE/PATH/TO/psu_ischemic_imputed.parquet \
+  --outdir results/cohort_overlap_audit
+```
+
+Do not commit patient-level data or identifier lists. Report the overlap and
+label correspondence only after this local run passes.
+
