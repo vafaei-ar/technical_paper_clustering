@@ -123,7 +123,7 @@ def _row_item(ax, x, y, w, icon, text_, size=None, icon_color=BLUE, icon_s=0.26)
 def panel_a(fig, ax):
     x0, y0 = TEXT_POS["panel_a_origin"]
     w, h = PW, 4.90
-    panel(ax, x0, y0, w, h, letter="A", title="End-to-end workflow")
+    panel(ax, x0, y0, w, h, letter=None, title="End-to-end workflow")
 
     n = 7
     inner_x, inner_w = x0 + 0.26, w - 0.52
