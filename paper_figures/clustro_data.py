@@ -332,9 +332,9 @@ STROKE_ROWS = [
 ]
 
 SEPSIS_CLUSTERS = [
-    ("Reference /\nneutrophil", _sepsis_n[0], "blue"),
-    ("IG-high", _sepsis_n[1], "orange"),
-    ("Eosinophil-lymphocyte", _sepsis_n[2], "red"),
+    ("S0: Neutrophil-\npredominant", _sepsis_n[0], "blue"),
+    ("S1: IG-high", _sepsis_n[1], "orange"),
+    ("S2: Eosinophil-\nlymphocyte", _sepsis_n[2], "red"),
 ]
 
 SEPSIS_ROWS = [
