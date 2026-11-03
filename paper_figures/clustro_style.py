@@ -19,6 +19,7 @@ Only numpy + matplotlib are required.
 from __future__ import annotations
 
 import math
+import os
 import textwrap
 
 import matplotlib as mpl
@@ -137,6 +138,9 @@ def save(fig, path, dpi=300):
     else:
         bbox_inches = "tight"
 
+    # The CLI controls PNG resolution through the same environment setting
+    # used by every figure module; PDF export remains vector-based.
+    dpi = int(os.environ.get("CLUSTRO_FIGURE_DPI", dpi))
     fig.savefig(path, dpi=dpi, facecolor="white", bbox_inches=bbox_inches,
                 pad_inches=0.02)
     plt.close(fig)
