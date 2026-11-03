@@ -27,8 +27,8 @@ TEXT_SIZE = {
     "figure_title": 16.0,
     "tick_label": 14.0,
     "axis_label": 15.6,
-    "null_label": 13.8,
-    "observed_label": 14.1,
+    "null_label": 12.0,
+    "observed_label": 12.4,
     "replicate_note": 11.0,
     "verdict": 9.8,
     "legend": 9.8,
@@ -84,16 +84,19 @@ def _null_panel(fig, ax_c, ax_top, x0, y0, w, h, letter, cohort, subtitle, spec,
     ax.set_xlabel("Silhouette score", fontsize=TEXT_SIZE["axis_label"], color=TEXT, labelpad=6)
     ax.set_ylabel("Density", fontsize=TEXT_SIZE["axis_label"], color=TEXT, labelpad=6)
 
-    ax.plot([spec["mean"]] * 2, [0, ymax * 0.80], color=NULL_LINE,
+    # Stop reference markers below the text annotation band to avoid
+    # drawing dashed lines through the reference-count note.
+    ax.plot([spec["mean"]] * 2, [0, ymax * 0.55], color=NULL_LINE,
             ls=(0, (5, 3)), lw=1.8, zorder=4)
-    ax.plot([spec["observed"]] * 2, [0, ymax * 0.80], color=obs_color,
+    ax.plot([spec["observed"]] * 2, [0, ymax * 0.55], color=obs_color,
             ls=(0, (5, 3)), lw=2.0, zorder=5)
 
-    ax.text(spec["mean"], ymax * 0.845, f"Null mean = {spec['mean']:.3f}",
-            ha="right" if spec["mean"] < spec["observed"] else "left", va="bottom", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
-    ax.text(spec["mean"], ymax * 0.835, "(Gaussian-copula)",
-            ha="right" if spec["mean"] < spec["observed"] else "left",
-            va="top", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
+    # Place the stroke null label inside the plot, not left of the y-axis ticks.
+    null_text_x = spec["mean"] + (0.004 if spec["mean"] < spec["observed"] else 0.0)
+    ax.text(null_text_x, ymax * 0.890, f"Null mean = {spec['mean']:.3f}",
+            ha="left", va="bottom", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
+    ax.text(null_text_x, ymax * 0.876, "(Gaussian-copula)",
+            ha="left", va="top", fontsize=TEXT_SIZE["null_label"], color=TEXT, zorder=6)
     ax.text(spec["observed"] + obs_dx, ymax * 0.845,
             f"Observed = {spec['observed']:.3f}",
             ha="left" if spec["mean"] < spec["observed"] else "right", va="bottom",
@@ -101,7 +104,7 @@ def _null_panel(fig, ax_c, ax_top, x0, y0, w, h, letter, cohort, subtitle, spec,
 
     segments = [
         [(f"{spec['n_ge']}/{spec['n_rep']}", "bold"),
-         (" references >= observed", "normal")],
+         (" references ≥ observed", "normal")],
         [("upper-tail proportion = ", "normal"), (f"{spec['p']:.3f}", "bold")],
     ]
     nsize = TEXT_SIZE["replicate_note"]
