@@ -37,7 +37,7 @@ TEXT_SIZE = {
 TEXT_POS = {
     "figure_title": (0.42, 0.50),
     "stroke_k4_box": (0.1400, 0.725),
-    "stroke_selected_box": (0.1585, 0.625),
+    "stroke_selected_box": (0.1780, 0.520),
     "stroke_k2_box": (0.2030, 0.760),
     "stroke_agglomerative_box": (0.2270, 0.360),
     "sepsis_selected_box": (0.1653, 0.910),
