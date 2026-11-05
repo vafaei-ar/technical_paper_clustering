@@ -6,6 +6,33 @@ Reproducible clustering analysis for the frozen stroke and sepsis cohorts used i
 
 This repository contains code and configuration only. Patient-level data, intermediate matrices, cluster assignments, logs, figures, tables, archives, and all generated results are excluded by `.gitignore`.
 
+## Current manuscript figures
+
+The five manuscript figures use aggregate tables produced by the study's original
+stroke and sepsis analyses. The source patient data and analysis results are
+private and are not distributed in this repository. On the authorized research
+computer, verify the input checksums and regenerate the figures using:
+
+```bash
+python scripts/regenerate_all_figures_checked.py --verify-only
+python scripts/regenerate_all_figures_checked.py --dpi 600
+```
+
+The verified workflow writes five high-resolution PNGs, five vector PDFs,
+and a SHA-256 source/output manifest under
+`results/final_paper_figures_v8610/`. The figures should be checked at
+manuscript print size before submission. The manuscript's reporting cohort
+counts are stroke 9,835 and sepsis 15,842. Figure 5A uses selected-run
+silhouettes, whereas the Figure 2 candidate screening includes means over
+five seeds.
+
+The companion ischemic-stroke clinical cohort is an exact 7,688-person subset
+of the broad 9,835-person Penn State stroke cohort by patient identifier.
+The aggregate-only verification command is described in
+[`paper_figures/README.md`](paper_figures/README.md). The independently
+estimated cluster assignments between the two manuscripts have not yet been
+compared with a patient-level ARI.
+
 ## Expected private data locations
 
 Place the frozen input files at:
@@ -219,4 +246,13 @@ commands, and settings.
 - Historical `generate_author_revision_materials_v*.py` and other reporting
   scripts are deliberately retained until their outputs are archived and
   provenance dependencies verified.
+
+## Reuse permissions
+
+This analysis repository does not yet have an approved reuse license.
+Public visibility does not by itself grant third parties permission to
+redistribute or modify this source. The related Clustro software package has
+its own MIT license, which does not automatically cover this separate
+repository. The authors will determine the appropriate release terms
+before describing these analysis scripts as openly licensed.
 

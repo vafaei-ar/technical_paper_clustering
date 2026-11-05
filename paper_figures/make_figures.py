@@ -35,6 +35,9 @@ def main(argv=None):
                     help="also save a vector PDF of each figure")
     ap.add_argument("--dpi", type=int, default=300)
     args = ap.parse_args(argv)
+    if args.dpi < 300:
+        ap.error("--dpi must be >=300 for publication figures")
+    os.environ["CLUSTRO_FIGURE_DPI"] = str(args.dpi)
 
     os.makedirs(args.outdir, exist_ok=True)
     wanted = args.only or sorted(MODULES)

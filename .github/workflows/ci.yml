@@ -21,7 +21,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e . pytest
       - name: Check Python syntax
-        run: python -m compileall -q src tests paper_figures
+        run: python -m compileall -q src tests paper_figures scripts
+      - name: Smoke-test publication CLI help (no patient data required)
+        run: |
+          python scripts/check_stroke_cohort_overlap.py --help > /dev/null
+          python scripts/regenerate_all_figures_checked.py --help > /dev/null
       - name: Run unit tests (no private patient data required)
         env:
           MPLBACKEND: Agg

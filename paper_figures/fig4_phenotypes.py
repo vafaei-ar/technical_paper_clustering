@@ -70,7 +70,7 @@ GROUP_ICONS = {
 
 SUMMARY = {
     "Stroke": [
-        ("Preserved hematologic", D.STROKE_CLUSTERS[0][1], "blue", "people",
+        ("Lower-comorbidity", D.STROKE_CLUSTERS[0][1], "blue", "people",
          ["Near-normal hematologic profile", "Lower comorbidity burden",
           "Lower glucose and creatinine"]),
         ("Renal-anemic", D.STROKE_CLUSTERS[1][1], "orange", "kidneys",
@@ -82,16 +82,16 @@ SUMMARY = {
           "More cardiovascular comorbidities"]),
     ],
     "Sepsis": [
-        ("Reference / neutrophil", D.SEPSIS_CLUSTERS[0][1], "blue", "people",
-         ["Reference inflammatory profile",
-          "Lower organ dysfunction", "Fewer acute complications"]),
-        ("IG-high", D.SEPSIS_CLUSTERS[1][1], "orange", "cells",
+        ("S0: Neutrophil-predominant", D.SEPSIS_CLUSTERS[0][1], "blue", "people",
+         ["Near cohort average on most non-anchor features",
+          "Reference group for descriptive comparisons"]),
+        ("S1: IG-high", D.SEPSIS_CLUSTERS[1][1], "orange", "cells",
          ["Markedly elevated immature granulocytes",
           "Higher creatinine and anion gap",
           "More organ dysfunction"]),
-        ("Eosinophil-lymphocyte", D.SEPSIS_CLUSTERS[2][1], "red", "blood",
+        ("S2: Eosinophil-lymphocyte", D.SEPSIS_CLUSTERS[2][1], "red", "blood",
          ["Higher eosinophils", "Higher lymphocytes", "Lower neutrophils",
-          "Distinct inflammatory profile"]),
+          "White-cell differential pattern"]),
     ],
 }
 

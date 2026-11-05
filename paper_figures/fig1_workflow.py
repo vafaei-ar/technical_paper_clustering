@@ -1,5 +1,5 @@
 """
-Figure 1 -- Clustro workflow and decision logic.
+Figure 1 -- Clustro end-to-end workflow (single-panel co-author revision).
 
 Panel A: seven-step end-to-end workflow, with screening before full-refit stability.
 Panel B: naive one-shot clustering vs the Clustro workflow.
@@ -123,7 +123,7 @@ def _row_item(ax, x, y, w, icon, text_, size=None, icon_color=BLUE, icon_s=0.26)
 def panel_a(fig, ax):
     x0, y0 = TEXT_POS["panel_a_origin"]
     w, h = PW, 4.90
-    panel(ax, x0, y0, w, h, letter="A", title="End-to-end workflow")
+    panel(ax, x0, y0, w, h, letter=None, title="End-to-end workflow")
 
     n = 7
     inner_x, inner_w = x0 + 0.26, w - 0.52
@@ -523,16 +523,15 @@ def build(outdir="."):
     import matplotlib as mpl
     mpl.rcParams["pdf.fonttype"] = 42
     mpl.rcParams["ps.fonttype"] = 42
-    # panels B and C share a height: take whichever needs more, then size the
-    # canvas to fit it, so text can grow without ever colliding.
-    PANEL_BC["h"] = max(TEXT_POS["panel_bc_h"], panel_b_height(), panel_c_height())
-    fig_h = max(H, PANEL_BC["y0"] + PANEL_BC["h"] + 0.40)
+    # Co-author revision: Figure 1 shows the executed end-to-end workflow only.
+    # Remove the untested "naive" comparison and duplicated decision matrix.
+    # Those conceptual diagnostics are discussed in the text and Figure 3.
+    fig_h = TEXT_POS["panel_a_origin"][1] + 4.90 + 0.30
     fig, ax = canvas(W, fig_h)
     fig._crop_top_inches = 0.48
-    # The manuscript caption supplies the figure number and title.
+    # Cohort counts and all analysis parameters remain sourced from the
+    # existing reporting data loaded by clustro_data; no simulated results.
     panel_a(fig, ax)
-    panel_b(fig, ax)
-    panel_c(fig, ax)
     return save(fig, os.path.join(outdir, "fig1_workflow.png"))
 
 

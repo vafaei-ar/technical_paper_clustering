@@ -34,6 +34,27 @@ No local server is needed. Open or download the PNG/PDF files directly from:
 results/final_paper_figures_v4/
 ```
 
+## Co-author correction of Figures 4 and 5 (v8.6.7)
+
+Use the checked regeneration command on the research computer with the existing
+private aggregate analysis outputs. This command reads the original reported
+cluster sizes, selected-run silhouette results, and phenotype profile tables,
+then stops if those inputs are missing or inconsistent with the manuscript.
+It never generates mock results or refits clustering.
+
+```bash
+python scripts/regenerate_figures_4_5_checked.py --verify-only --check-frozen-hashes
+python scripts/regenerate_figures_4_5_checked.py --check-frozen-hashes
+```
+
+The second command writes `fig4_phenotypes.png/.pdf`,
+`fig5_robustness.png/.pdf`, and
+`figure_source_manifest_v867.json` into
+`results/final_paper_figures_v867/`. The manifest includes SHA-256 fingerprints
+for the source aggregate tables and generated figures. Do not check patient-level
+input files into Git. The manuscript images should only be replaced after
+checking the regenerated output against Tables 2, S6, and S7.
+
 ## Data sources
 
 The figure code reads the existing analysis outputs rather than synthetic placeholders:
@@ -75,3 +96,41 @@ STYLE["heat_cell_lw"] = 0.70
 ```
 
 The shared `clustro_style.py` file still contains `FONT_SCALE`, which scales text across the whole figure set.
+
+
+## Co-author figure export and cohort identity checks (November 2026)
+
+The paper's figure corrections are applied **only in plotting code**. They must
+be regenerated against the verified local analytic outputs. Do not hand-edit
+scientific figures, reuse stale PNGs, or substitute fabricated data.
+
+```bash
+python scripts/regenerate_all_figures_checked.py --verify-only
+python scripts/regenerate_all_figures_checked.py --dpi 600
+```
+
+The script verifies the two study Parquet SHA-256 fingerprints, cluster sizes,
+selected-run silhouettes, aggregate profile tables, and source files. It writes
+600-DPI PNGs, vector PDFs, and `figure_source_manifest_v8610.json` to
+`results/final_paper_figures_v8610/`. Inspect the five figures and replace
+their images in the manuscript only after visual and numerical QA.
+
+The clinical ischemic-stroke paper has a 7,688-patient Penn State cohort,
+compared with the 9,835-patient broad stroke cohort in this paper. Its cohort
+logic audit documents ischemic-only (7,688), hemorrhagic-only (40), dual-coded
+(2,023), and neither (84) categories in a 9,835-person harmonized source.
+To verify the two studies use exactly the same patient IDs, run the separate
+aggregate-only audit with the actual local inputs (examples below). ARI requires
+label files containing explicit PATID columns. It is not valid to align
+labels by row order.
+
+```bash
+python scripts/check_stroke_cohort_overlap.py \
+  --technical-cohort data/stroke/stroke_cohort_imputed.parquet \
+  --clinical-cohort /ABSOLUTE/PATH/TO/psu_ischemic_imputed.parquet \
+  --outdir results/cohort_overlap_audit
+```
+
+Do not commit patient-level data or identifier lists. Report the overlap and
+label correspondence only after this local run passes.
+
